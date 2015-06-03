@@ -44,6 +44,7 @@ request(search_url, function (error, response, body) {
 			results['title'] = job.jobtitle;
 			results['company'] = job.company;
 			results['location'] = job.formattedLocation;
+			results['snippet'] = job.snippet;
 			results['url'] = job.url;
 
 			request (job.url, function (jerror, jresponse, jbody) {
