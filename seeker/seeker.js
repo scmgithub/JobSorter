@@ -41,7 +41,16 @@ app.get('/', function(req,res) {
 });
 
 app.get('/api/jobsearch', function(req,res) {
-  res.send("query = "+JSON.stringify(req.query));
+  var query = req.query.q;
+
+  MongoClient.connect(dburl, function(err,db) {
+    assert.equal(null,err);
+    db.collection('joblistings').find().limit(10).toArray(function(err,docs) {
+      assert.equal(null,err);
+      res.send(docs);
+      db.close();
+    });
+  });
 });
 
 app.get('/api/test', function(req,res) {

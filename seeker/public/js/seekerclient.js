@@ -26,12 +26,11 @@ angular.module('seeker',['ngRoute'])
     var query = $location.search().query;
     $http({method: "GET", url: "/api/jobsearch", params: {q: query}})
       .success(function(data) {
-        alert(data);
+        $scope.rows = data;
       })
       .error(function(err) {
         alert(err);
       });
-    $scope.rows = ["hi","there","dave"];
   })
 
   .controller('login', function($scope,$http,$window,$location) {
