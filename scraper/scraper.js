@@ -5,6 +5,11 @@ var mustacheExpress = require('mustache-express');
 
 var requester = require('./indeedRequester');
 
+var Mongo = require('mongodb');
+var MongoClient = Mongo.MongoClient;
+var ObjectId = Mongo.ObjectID;
+var dburl = 'mongodb://localhost:27017/jobsorter';
+
 var app = express();
 app.engine('html', mustacheExpress());
 app.set('view engine', 'html');
@@ -16,6 +21,16 @@ app.use(bodyParser.json());
 
 app.get('/', function(req,res) {
   res.redirect('index.html');
+});
+
+app.get('/loadintodb', function(req,res) {
+  requester.getData().then(function(data) {
+    MongoClient.connect(dburl, function(err,db) {
+      if (err) throw(err);
+      db.collection('joblistings').insert(data);
+      res.send('wrote to database maybe');
+    });
+  });
 });
 
 app.get('/test', function(req,res) {

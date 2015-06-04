@@ -40,6 +40,10 @@ app.get('/', function(req,res) {
   // res.redirect('/login');
 });
 
+app.get('/api/jobsearch', function(req,res) {
+  res.send("query = "+JSON.stringify(req.query));
+});
+
 app.get('/api/test', function(req,res) {
   res.send('secret data lies within!');
 });
@@ -63,7 +67,7 @@ app.post('/login', function(req,res) {
           var profile = {
             email: doc.email,
             id: doc._id
-          }
+          };
           var token = jwt.sign(profile,secrets.jwt, {expiresInMinutes:60*5});
           res.json({token:token});
         } else {

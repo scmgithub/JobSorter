@@ -10,12 +10,28 @@ angular.module('seeker',['ngRoute'])
     };
   })
 
-  .controller('home', function($scope, $http) {
+  .controller('home', function($scope, $http, $location) {
     // $scope.message = "welcome home";
     $http.get('/api/test')
       .success(function(data) {
         $scope.message = data;
       });
+
+    $scope.submit = function() {
+      $location.path('/app/search').search({query: $scope.search.text});
+    };
+  })
+
+  .controller('search', function($scope, $http, $location) {
+    var query = $location.search().query;
+    $http({method: "GET", url: "/api/jobsearch", params: {q: query}})
+      .success(function(data) {
+        alert(data);
+      })
+      .error(function(err) {
+        alert(err);
+      });
+    $scope.rows = ["hi","there","dave"];
   })
 
   .controller('login', function($scope,$http,$window,$location) {
@@ -91,7 +107,11 @@ angular.module('seeker',['ngRoute'])
         templateUrl: 'views/home.html',
         controller: 'home'
       })
+      .when('/app/search', {
+        templateUrl: 'views/search.html',
+        controller: 'search'
+      })
       .otherwise({
-        redirectTo: 'login'
+        redirectTo: '/login'
       });
   });
