@@ -11,12 +11,6 @@ angular.module('seeker',['ngRoute','ngSanitize'])
   })
 
   .controller('home', function($scope, $http, $location) {
-    // $scope.message = "welcome home";
-    $http.get('/api/test')
-      .success(function(data) {
-        $scope.message = data;
-      });
-
     $scope.submit = function() {
       $location.path('/app/search').search({query: $scope.search.text});
     };
@@ -32,7 +26,6 @@ angular.module('seeker',['ngRoute','ngSanitize'])
         alert(err);
       });
     $scope.showDetail = function(rowid) {
-      console.log($scope.rows[rowid]);
       $scope.modaltitle = $scope.rows[rowid].title;
       $scope.modalbody = $scope.rows[rowid].job_detail;
       $("#detailModal").modal();

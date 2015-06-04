@@ -11,7 +11,7 @@ var forge = require('node-forge');
 
 var app = express();
 // any route prefixed with api will be authenticated
-app.use('/api',expressJwt({secret:secrets.jwt}));
+app.use('/api', expressJwt({secret:secrets.jwt}));
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
