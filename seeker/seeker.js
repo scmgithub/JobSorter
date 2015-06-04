@@ -42,10 +42,13 @@ app.get('/', function(req,res) {
 
 app.get('/api/jobsearch', function(req,res) {
   var query = req.query.q;
-
+console.log("query:" + query);
   MongoClient.connect(dburl, function(err,db) {
     assert.equal(null,err);
-    db.collection('joblistings').find().limit(10).toArray(function(err,docs) {
+
+    //db.collection('joblistings').find().limit(10).toArray(function(err,docs) {
+    // db text index gets called here
+    db.collection('joblistings').find( { $text: { $search: "developer -CSS3" } }).limit(10).toArray(function(err,docs) {
       assert.equal(null,err);
       res.send(docs);
       db.close();
