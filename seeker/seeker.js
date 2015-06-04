@@ -117,4 +117,8 @@ app.post('/signup', function(req,res) {
   });
 });
 
+app.get('/search', function(req,res) {
+  res.json([1,2,3,4,5]);
+});
+
 app.listen(3000, function(){console.log('seekerclient started on port 3000');});
