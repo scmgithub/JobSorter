@@ -19,14 +19,17 @@ app.get('/', function(req,res) {
 });
 
 app.get('/test', function(req,res) {
-  requester.getData(function(data) {
+  requester.getData().then(function(data) {
+    // console.dir(data);
     res.render('test', {
-      names: data
+      rows: data
     });
+  }, function(error) {
+    console.log(error);
   });
 });
 
-app.listen(3000, function(){console.log("scraper started on port 3000")});
+app.listen(3000, function(){console.log("scraper started on port 3000");});
 
 
 //jobtitle company city state country snippet jobkey url

@@ -10,8 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.12.4",
+    "cheerio": "^0.19.0",
     "express": "^4.12.4",
     "mustache-express": "^1.2.1",
+    "q": "^1.4.1",
     "request": "^2.57.0"
   }
 }
