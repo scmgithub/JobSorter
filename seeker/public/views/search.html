@@ -1,4 +1,7 @@
-{{msg}}
+results
 <ul>
-<li ng-repeat='row in data' ng-click="detailView(row)">{{row}}</li>
+<li ng-repeat="row in rows">
+  <h4>{{row.title}}</h4>
+  <p>{{row.snippet}}</p>
+</li>
 </ul>

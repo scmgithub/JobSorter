@@ -1,40 +1,116 @@
 angular.module('seeker',['ngRoute'])
-  .controller('main', function($scope, $location) {
-    $scope.msg = 'hi';
-    
-    $scope.doSearch = function() {
-      $location.path('/search').search({'name' : 'dave'});
-      // alert("In main controller.");
-    }
-
-    $scope.seeview2 = function() {
-      $location.path('/view2');  
-    }
-
+  .controller('nav', function($location, $rootScope, $scope, $window) {
+    $rootScope.$on("$locationChangeStart", function(event,next,current) {
+      if (typeof $window.sessionStorage.token === "undefined" && next.indexOf("#/app/") > -1) {
+        event.preventDefault();
+      }
+    });
+    $scope.logout = function() {
+      delete $window.sessionStorage.token;
+    };
   })
 
-  .controller('search', function($scope, $location, $http) {
-    $scope.msg = JSON.stringify($location.search());
-    $http.get('http://localhost:3000/search')
+  .controller('home', function($scope, $http, $location) {
+    // $scope.message = "welcome home";
+    $http.get('/api/test')
       .success(function(data) {
-        $scope.data = data;
+        $scope.message = data;
+      });
+
+    $scope.submit = function() {
+      $location.path('/app/search').search({query: $scope.search.text});
+    };
+  })
+
+  .controller('search', function($scope, $http, $location) {
+    var query = $location.search().query;
+    $http({method: "GET", url: "/api/jobsearch", params: {q: query}})
+      .success(function(data) {
+        $scope.rows = data;
       })
       .error(function(err) {
-        alert("Error:" + err);
+        alert(err);
       });
-    $scope.detailView = function(row) {
-      alert(row);
+  })
+
+  .controller('login', function($scope,$http,$window,$location) {
+    $scope.submit = function() {
+      $http.post("/login", {user: $scope.user})
+        .success(function(data) {
+          $window.sessionStorage.token = data.token;
+          $location.path('app/home');
+        })
+        .error(function(err) {
+          delete $window.sessionStorage.token;
+          alert(err);
+        });
+    }
+  })
+  .controller('signup', function($scope,$http,$window,$location) {
+    $scope.user = {};
+    $scope.submit = function() {
+      if ($scope.user.password !== $scope.user.confirmpassword) {
+        alert("passwords don't match");
+      } else {
+        $http.post("/signup",{user: $scope.user})
+          .success(function(res,status) {
+            $http.post("/login", {user: $scope.user})
+              .success(function(data) {
+                $window.sessionStorage.token = data.token;
+                $location.path('app/home');
+              })
+              .error(function(err) {
+                delete $window.sessionStorage.token;
+                alert(err);
+              });
+          })
+          .error(function(res,status) {
+            alert("err: "+res+" status: "+status);
+          });
+      }
     }
   })
 
-  .config(function($routeProvider) {
+  .factory('authInterceptor', function($q, $window, $location) {
+    return {
+      request: function(config) {
+        config.headers = config.headers || {};
+        if ($window.sessionStorage.token) {
+          config.headers.Authorization = 'Bearer ' + $window.sessionStorage.token;
+        }
+        return config;
+      },
+      response: function(response) {
+        if (response.status === 401) {
+          delete $window.sessionStorage.token;
+          $location.path('login');
+        }
+        return response || $q.when(response);
+      }
+    };
+  })
+
+  .config(function($routeProvider, $httpProvider) {
+    $httpProvider.interceptors.push('authInterceptor');
+
     $routeProvider
-      .when('/search', {
+      .when('/login', {
+        templateUrl: 'views/login.html',
+        controller: 'login'
+      })
+      .when('/signup', {
+        templateUrl: 'views/signup.html',
+        controller: 'signup'
+      })
+      .when('/app/home', {
+        templateUrl: 'views/home.html',
+        controller: 'home'
+      })
+      .when('/app/search', {
         templateUrl: 'views/search.html',
         controller: 'search'
       })
-
-      .when('/view2', {
-        templateUrl: 'views/view2.html'
+      .otherwise({
+        redirectTo: '/login'
       });
   });
