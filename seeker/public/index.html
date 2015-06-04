@@ -3,13 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <title>Seeker Client</title>
-  <script src="js/bower_components/angular/angular.js"></script>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+  <!-- <script src="bower_components/jquery/dist/jquery.js"></script> -->
+  <!-- <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script> -->
+
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="bower_components/angular-route/angular-route.js"></script>
   <script src="js/seekerclient.js"></script>
 </head>
 <body ng-app="seeker">
-  seeker
-  <div ng-controller="main">
-    {{msg}}
-  </div>
+  <nav class="navbar navbar-inverse" ng-controller="nav">
+    <ul class="nav navbar-nav">
+      <li><a href="#/app/home">Home</a></li>
+      <li><a href="#/signup">Sign up</a></li>
+      <li><a href="#/login">Log in</a></li>
+      <li><a href="#/login" ng-click="logout()">Log out</a></li>
+    </ul>
+  </nav>
+  <div class="container" ng-view></div>
 </body>
 </html>
