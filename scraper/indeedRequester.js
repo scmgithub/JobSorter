@@ -4,6 +4,7 @@ var secrets = require('../secrets.json');
 var Q = require('q');
 
 var queryurl = "http://api.indeed.com/ads/apisearch";
+
 var publisher = "?publisher=" + secrets['indeed_api_key'];
 var format = "&format=" + "json";
 var query = "&q=" + "junior+web+developer";
@@ -22,8 +23,9 @@ var channel = "&chnl=" + "";
 var userip = "&userip=" + "1.2.3.4";
 var useragent = "&useragent=" + "Mozilla/%2F4.0%28Firefox%29";
 var ver = "&v=" + "2";
+var highlight = "&highlight="+"0";
 
-var search_url = queryurl + publisher + format + query + loc + sort + radius + site_type + job_type + start + limit + fromage + filter + latlong + country + channel + userip + useragent + ver;
+var search_url = queryurl + publisher + format + query + loc + sort + radius + site_type + job_type + start + limit + fromage + filter + latlong + country + channel + userip + useragent + ver + highlight;
 
 function getJobDetail(job) {
   var result = {};
