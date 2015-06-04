@@ -4,12 +4,16 @@
   <meta charset="UTF-8">
   <title>Seeker Client</title>
   <script src="js/bower_components/angular/angular.js"></script>
+  <script src="js/bower_components/angular-route/angular-route.js"></script>
   <script src="js/seekerclient.js"></script>
 </head>
 <body ng-app="seeker">
   seeker
   <div ng-controller="main">
     {{msg}}
+    <button ng-click='doSearch()'>Go!</button>
+    <button ng-click='seeview2()'>V2!</button>
   </div>
+  <div ng-view></div>
 </body>
 </html>
