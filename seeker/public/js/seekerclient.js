@@ -18,12 +18,12 @@ angular.module('seeker',['ngRoute'])
       });
   })
 
-  .controller('login', function($scope,$http,$window) {
+  .controller('login', function($scope,$http,$window,$location) {
     $scope.submit = function() {
       $http.post("/login", {user: $scope.user})
         .success(function(data) {
           $window.sessionStorage.token = data.token;
-          alert('yay');
+          $location.path('app/home');
         })
         .error(function(err) {
           delete $window.sessionStorage.token;
@@ -31,7 +31,7 @@ angular.module('seeker',['ngRoute'])
         });
     }
   })
-  .controller('signup', function($scope,$http) {
+  .controller('signup', function($scope,$http,$window,$location) {
     $scope.user = {};
     $scope.submit = function() {
       if ($scope.user.password !== $scope.user.confirmpassword) {
@@ -39,7 +39,15 @@ angular.module('seeker',['ngRoute'])
       } else {
         $http.post("/signup",{user: $scope.user})
           .success(function(res,status) {
-            alert(res + " " + status);
+            $http.post("/login", {user: $scope.user})
+              .success(function(data) {
+                $window.sessionStorage.token = data.token;
+                $location.path('app/home');
+              })
+              .error(function(err) {
+                delete $window.sessionStorage.token;
+                alert(err);
+              });
           })
           .error(function(res,status) {
             alert("err: "+res+" status: "+status);
