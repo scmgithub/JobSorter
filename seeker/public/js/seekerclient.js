@@ -1,4 +1,4 @@
-angular.module('seeker',['ngRoute'])
+angular.module('seeker',['ngRoute','ngSanitize'])
   .controller('nav', function($location, $rootScope, $scope, $window) {
     $rootScope.$on("$locationChangeStart", function(event,next,current) {
       if (typeof $window.sessionStorage.token === "undefined" && next.indexOf("#/app/") > -1) {
@@ -31,6 +31,12 @@ angular.module('seeker',['ngRoute'])
       .error(function(err) {
         alert(err);
       });
+    $scope.showDetail = function(rowid) {
+      console.log($scope.rows[rowid]);
+      $scope.modaltitle = $scope.rows[rowid].title;
+      $scope.modalbody = $scope.rows[rowid].job_detail;
+      $("#detailModal").modal();
+    };
   })
 
   .controller('login', function($scope,$http,$window,$location) {
@@ -88,6 +94,13 @@ angular.module('seeker',['ngRoute'])
         return response || $q.when(response);
       }
     };
+  })
+
+  .filter('newlines_as_br', function() {
+    return function(input) {
+      if (input) return input.replace(/[\n\f\r]/g,'<br>');
+      else return null;
+    }
   })
 
   .config(function($routeProvider, $httpProvider) {

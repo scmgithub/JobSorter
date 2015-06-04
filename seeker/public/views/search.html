@@ -1,7 +1,24 @@
-results
+<div class="modal" id="detailModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">{{modaltitle}}</h4>
+      </div>
+      <div class="modal-body">
+        <p ng-bind-html="modalbody | newlines_as_br"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
 <ul>
-<li ng-repeat="row in rows">
-  <h4>{{row.title}}</h4>
-  <p>{{row.snippet}}</p>
-</li>
+  <li ng-repeat="row in rows" ng-click="showDetail($index)">
+    <h4>{{row.title}}</h4>
+    <p>{{row.snippet}}</p>
+  </li>
 </ul>
