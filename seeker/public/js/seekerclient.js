@@ -17,6 +17,11 @@ angular.module('seeker',['ngRoute','ngSanitize'])
   })
 
   .controller('search', function($scope, $http, $location) {
+
+    $scope.rating = 5;
+    $scope.rateFunction = function(rating) {
+    };
+
     var query = $location.search().query;
     $http({method: "GET", url: "/api/jobsearch", params: {q: query}})
       .success(function(data) {
@@ -101,7 +106,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
         restrict : 'A',
         template : '<ul class="rating">'
            + ' <li ng-repeat="star in stars" ng-class="star" ng-click="toggle($index)">'
-           + '  <i class="fa fa-star-o"></i>'
+           + '  <i class="fa fa-star"></i>'
            + ' </li>'
            + '</ul>',
         scope : {
