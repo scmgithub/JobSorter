@@ -42,7 +42,7 @@ app.get('/', function(req,res) {
 
 app.get('/api/jobsearch', function(req,res) {
   var query = req.query.q;
-console.log("query:" + query);
+  //console.log("query:" + query);
   MongoClient.connect(dburl, function(err,db) {
     assert.equal(null,err);
 
