@@ -41,15 +41,22 @@ app.get('/', function(req,res) {
 });
 
 app.get('/api/jobsearch', function(req,res) {
-  var query = req.query.q;
+  var query = req.query.q || "";
   //console.log("query:" + query);
   MongoClient.connect(dburl, function(err,db) {
     assert.equal(null,err);
 
     //db.collection('joblistings').find().limit(10).toArray(function(err,docs) {
     // db text index gets called here
-    db.collection('joblistings').find( { $text: { $search: query } },
-   { score: { $meta: "textScore" } }).sort( { score: { $meta: "textScore" } } ).limit(10).toArray(function(err,docs) {
+    var cursor;
+    if (query.length > 0) {
+      // run a text search if query is not empty
+      cursor = db.collection('joblistings').find( { $text: { $search: query } }, { score: { $meta: "textScore" } }).sort( { score: { $meta: "textScore" } } ).limit(10);
+    } else {
+      // if query is empty just grab 10 joblistings
+      cursor = db.collection('joblistings').find().limit(10);
+    }
+    cursor.toArray(function(err,docs) {
       assert.equal(null,err);
       res.send(docs);
       db.close();

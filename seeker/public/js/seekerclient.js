@@ -18,11 +18,16 @@ angular.module('seeker',['ngRoute','ngSanitize'])
 
   .controller('search', function($scope, $http, $location) {
 
-    $scope.rating = 5;
-    $scope.rateFunction = function(index, rating) {
+    // make sure modal gets inited properly
+    $scope.modalindex = 0;
+    $scope.ratings = [-1];
 
+    // persist ratings
+    $scope.rateFunction = function(index, rating) {
+      
     };
 
+    // run query and fill out results page
     var query = $location.search().query;
     $http({method: "GET", url: "/api/jobsearch", params: {q: query}})
       .success(function(data) {
@@ -33,6 +38,8 @@ angular.module('seeker',['ngRoute','ngSanitize'])
       .error(function(err) {
         alert(err);
       });
+
+    // respond to click on snippet by showing modal
     $scope.showDetail = function(rowid) {
       $scope.modalindex = rowid;
       $scope.modaltitle = $scope.rows[rowid].title;
@@ -129,10 +136,10 @@ angular.module('seeker',['ngRoute','ngSanitize'])
         };
      
         scope.toggle = function(index) {
-         scope.ratingValue = index + 1;
-         scope.onRatingSelected({
-          rating : index + 1
-         });
+          scope.ratingValue = index + 1;
+          scope.onRatingSelected({
+           rating : index + 1
+          });
         };
         
         scope.$watch('ratingValue', function(oldVal, newVal) {
