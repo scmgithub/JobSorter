@@ -19,18 +19,22 @@ angular.module('seeker',['ngRoute','ngSanitize'])
   .controller('search', function($scope, $http, $location) {
 
     $scope.rating = 5;
-    $scope.rateFunction = function(rating) {
+    $scope.rateFunction = function(index, rating) {
+
     };
 
     var query = $location.search().query;
     $http({method: "GET", url: "/api/jobsearch", params: {q: query}})
       .success(function(data) {
+        // set initial ratings for all the joblistings. -1 means unrated
+        $scope.ratings = data.map(function() {return -1;});
         $scope.rows = data;
       })
       .error(function(err) {
         alert(err);
       });
     $scope.showDetail = function(rowid) {
+      $scope.modalindex = rowid;
       $scope.modaltitle = $scope.rows[rowid].title;
       $scope.modalbody = $scope.rows[rowid].job_detail;
       $("#detailModal").modal();
@@ -110,33 +114,33 @@ angular.module('seeker',['ngRoute','ngSanitize'])
            + ' </li>'
            + '</ul>',
         scope : {
-          ratingValue : '=',
-          max : '=',
-          onRatingSelected : '&'
-        },
-        link : function(scope, elem, attrs) {
-          var updateStars = function() {
-            scope.stars = [];
-            for ( var i = 0; i < scope.max; i++) {
-              scope.stars.push({
-                filled : i < scope.ratingValue
-              });
-            }
-          };
-       
-          scope.toggle = function(index) {
-           scope.ratingValue = index + 1;
-           scope.onRatingSelected({
-            rating : index + 1
-           });
-          };
-          
-          scope.$watch('ratingValue', function(oldVal, newVal) {
-            if (newVal) {
-              updateStars();
-            }
-          });
-        }
+        ratingValue : '=',
+        max : '=',
+        onRatingSelected : '&'
+      },
+      link : function(scope, elem, attrs) {
+        var updateStars = function() {
+          scope.stars = [];
+          for ( var i = 0; i < scope.max; i++) {
+            scope.stars.push({
+              filled : i < scope.ratingValue
+            });
+          }
+        };
+     
+        scope.toggle = function(index) {
+         scope.ratingValue = index + 1;
+         scope.onRatingSelected({
+          rating : index + 1
+         });
+        };
+        
+        scope.$watch('ratingValue', function(oldVal, newVal) {
+          if (newVal) {
+            updateStars();
+          }
+        });
+      }
     };
   })
 

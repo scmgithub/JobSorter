@@ -3,7 +3,10 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">{{modaltitle}}</h4>
+        <h4 class="modal-title">
+          {{modaltitle}}
+          <span class="star-rating" star-rating rating-value="ratings[modalindex]" data-max="5" on-rating-selected="rateFunction(modalindex, rating)"></span>
+        </h4>
       </div>
       <div class="modal-body">
         <p ng-bind-html="modalbody | newlines_as_br"></p>
@@ -16,14 +19,12 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-<ul>
-<!-- ng-click="showDetail($index)"-->
+<!-- -->
   <li ng-repeat="row in rows">
-      <h4>{{row.title}}</h4>
-    <p>{{row.snippet}}</p>
+    <h4>
+    <span class="star-rating" star-rating rating-value="ratings[$index]" data-max="5" on-rating-selected="rateFunction($index, rating)"></span>
+    {{row.title}}
+    </h4>
+    <p ng-click="showDetail($index)">{{row.snippet}}</p>
   </li>
 </ul>
-
- <div ng-init="rating = star.rating + 1"></div>
-
-<div class="star-rating" star-rating rating-value="rating" data-max="5" on-rating-selected="rateFunction(rating)"></div>
