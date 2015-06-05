@@ -21,7 +21,6 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     $http({method: "GET", url: "/api/jobsearch", params: {q: query}})
       .success(function(data) {
         $scope.rows = data;
-        $(function () { $('div.rateit, span.rateit').rateit(); });
       })
       .error(function(err) {
         alert(err);
