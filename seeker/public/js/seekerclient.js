@@ -21,6 +21,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     $http({method: "GET", url: "/api/jobsearch", params: {q: query}})
       .success(function(data) {
         $scope.rows = data;
+        $(function () { $('div.rateit, span.rateit').rateit(); });
       })
       .error(function(err) {
         alert(err);
@@ -94,6 +95,45 @@ angular.module('seeker',['ngRoute','ngSanitize'])
       if (input) return input.replace(/[\n\f\r]/g,'<br>');
       else return null;
     }
+  })
+  .directive('starRating',
+    function() {
+      return {
+        restrict : 'A',
+        template : '<ul class="rating">'
+           + ' <li ng-repeat="star in stars" ng-class="star" ng-click="toggle($index)">'
+           + '  <i class="fa fa-star-o"></i>'
+           + ' </li>'
+           + '</ul>',
+        scope : {
+          ratingValue : '=',
+          max : '=',
+          onRatingSelected : '&'
+        },
+        link : function(scope, elem, attrs) {
+          var updateStars = function() {
+            scope.stars = [];
+            for ( var i = 0; i < scope.max; i++) {
+              scope.stars.push({
+                filled : i < scope.ratingValue
+              });
+            }
+          };
+       
+          scope.toggle = function(index) {
+           scope.ratingValue = index + 1;
+           scope.onRatingSelected({
+            rating : index + 1
+           });
+          };
+          
+          scope.$watch('ratingValue', function(oldVal, newVal) {
+            if (newVal) {
+              updateStars();
+            }
+          });
+        }
+    };
   })
 
   .config(function($routeProvider, $httpProvider) {

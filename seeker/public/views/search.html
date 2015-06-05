@@ -17,8 +17,14 @@
 </div><!-- /.modal -->
 
 <ul>
-  <li ng-repeat="row in rows" ng-click="showDetail($index)">
-    <h4>{{row.title}}</h4>
+<!-- ng-click="showDetail($index)"-->
+  <li ng-repeat="row in rows">
+      <h4>{{row.title}}</h4>
     <p>{{row.snippet}}</p>
   </li>
 </ul>
+
+
+    <input type="range" min="0" max="5" value="0" step="1" id="{{'backing' + 1}}">
+    <div class="rateit" data-rateit-backingfld="{{'#backing' + 1}}" data-rateit-resetable="false"></div>
+
