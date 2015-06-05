@@ -48,7 +48,8 @@ console.log("query:" + query);
 
     //db.collection('joblistings').find().limit(10).toArray(function(err,docs) {
     // db text index gets called here
-    db.collection('joblistings').find( { $text: { $search: "developer -CSS3" } }).limit(10).toArray(function(err,docs) {
+    db.collection('joblistings').find( { $text: { $search: query } },
+   { score: { $meta: "textScore" } }).sort( { score: { $meta: "textScore" } } ).limit(10).toArray(function(err,docs) {
       assert.equal(null,err);
       res.send(docs);
       db.close();
