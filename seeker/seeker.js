@@ -58,9 +58,45 @@ app.get('/api/jobsearch', function(req,res) {
     }
     cursor.toArray(function(err,docs) {
       assert.equal(null,err);
-      res.send(docs);
-      db.close();
+      var jobids = docs.map(function(doc) {return doc.jobid;});
+      db.collection('reviews').find({useremail: req.user.email, jobid: {$in: jobids}}).toArray(function(err,reviews) {
+        assert.equal(null,err);
+        // do manual join
+        for (var i=0; i<docs.length; i++) {
+          for (var j=0; j<reviews.length; j++) {
+            if (docs[i].jobid === reviews[j].jobid) {
+              docs[i].rating = reviews[j].rating;
+              break;
+            }
+          }
+          if (j == reviews.length) {
+            docs[i].rating = -1; // -1 means we haven't rated this job yet
+          }
+        }
+        res.send(docs);
+        db.close();
+      });
     });
+  });
+});
+
+app.post('/api/review', function(req,res) {
+  var review = {
+    jobid: req.body.jobid,
+    useremail: req.user.email,
+    rating: req.body.rating
+  };
+  MongoClient.connect(dburl, function(err,db) {
+    db.collection('reviews').update({
+      // query
+      jobid: review.jobid,
+      useremail: review.useremail
+    },review,{
+      upsert: true,
+      w: 0 // ignore whether the write worked or not
+    });
+    db.close();
+    res.send('inserted review');
   });
 });
 

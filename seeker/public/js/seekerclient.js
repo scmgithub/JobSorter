@@ -12,6 +12,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
 
   .controller('home', function($scope, $http, $location) {
     $scope.submit = function() {
+      if (!$scope.search) {$scope.search = {text: ""};}
       $location.path('/app/search').search({query: $scope.search.text});
     };
   })
@@ -24,7 +25,14 @@ angular.module('seeker',['ngRoute','ngSanitize'])
 
     // persist ratings
     $scope.rateFunction = function(index, rating) {
-      
+      $http.post('/api/review', {
+        jobid: $scope.rows[index].jobid,
+        rating: rating
+      }).success(function (data) {
+        console.log(data);
+      }).error(function (data) {
+        console.log(data);
+      });
     };
 
     // run query and fill out results page
@@ -32,7 +40,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     $http({method: "GET", url: "/api/jobsearch", params: {q: query}})
       .success(function(data) {
         // set initial ratings for all the joblistings. -1 means unrated
-        $scope.ratings = data.map(function() {return -1;});
+        $scope.ratings = data.map(function(row) {return row.rating;});
         $scope.rows = data;
       })
       .error(function(err) {
