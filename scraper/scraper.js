@@ -24,7 +24,7 @@ app.get('/', function(req,res) {
 });
 
 app.get('/loadintodb', function(req,res) {
-  requester.getData().then(function(data) {
+  requester.getData({}).then(function(data) {
     MongoClient.connect(dburl, function(err,db) {
       if (err) throw(err);
       db.collection('joblistings').insert(data);
@@ -103,7 +103,8 @@ app.get('/load1k', function(req,res) {
 });
 
 app.get('/test', function(req,res) {
-  requester.getData("","New York, NY",10).then(function(data) {
+  // requester.getDataEvan("","New York, NY",10).then(function(data) {
+  requester.getData({}).then(function(data) {
     // console.dir(data);
     res.render('test', {
       rows: data
