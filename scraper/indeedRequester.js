@@ -90,12 +90,6 @@ function getData(context) {
   var search_url = queryurl + publisher + format + query + loc + sort + radius + site_type + job_type + start + limit + fromage + filter + latlong + country + channel + highlight + userip + useragent + ver;
 
   return Q.promise(function(resolve,reject) {
-    requestoptions['q'] = query;
-    requestoptions['l'] = city;
-    requestoptions['start'] = start;
-    var querystring = Object.keys(requestoptions).map(function(k) {return k + '=' + encodeURIComponent(requestoptions[k]);}).join('&');
-    var search_url = baseurl + "?" + querystring;
-    // console.log(search_url);
     request(search_url, function (error, response, body) {
       var results = [];
       if(!error && response.statusCode === 200) {
@@ -109,7 +103,6 @@ function getData(context) {
     });
   });
 }
-
 
 function getDataEvan(query, city,start) {
   return Q.promise(function(resolve,reject) {
@@ -134,5 +127,5 @@ function getDataEvan(query, city,start) {
 }
 
 module.exports = {
-  getData: getData,
+  getData: getData
 };
