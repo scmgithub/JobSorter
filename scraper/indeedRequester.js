@@ -3,29 +3,42 @@ var cheerio = require('cheerio');
 var secrets = require('../secrets.json');
 var Q = require('q');
 
-var queryurl = "http://api.indeed.com/ads/apisearch";
+var baseurl = "http://api.indeed.com/ads/apisearch";
 
-var publisher = "?publisher=" + secrets['indeed_api_key'];
-var format = "&format=" + "json";
-var query = "&q=" + "junior+web+developer";
-var loc = "&l=" + "New+York%2C+NY";
-var sort = "&sort=" + "";
-var radius = "&radius=" + "10";
-var site_type = "&st=" + "";
-var job_type = "&jt=" + "fulltime";
-var start = "&start=" + "";
-var limit = "&limit=" + "";
-var fromage = "&fromage=" + "last";
-var filter = "&filter=" + "";
-var latlong = "&latlong=" + "1";
-var country = "&co=" + "us";
-var channel = "&chnl=" + "";
-var userip = "&userip=" + "1.2.3.4";
-var useragent = "&useragent=" + "Mozilla/%2F4.0%28Firefox%29";
-var ver = "&v=" + "2";
-var highlight = "&highlight="+"0";
+var requestoptions = {
+  publisher: secrets['indeed_api_key'],
+  format: 'json',
+  radius: '10',
+  fromage: '14',
+  co: 'us',
+  v: '2',
+  highlight: '0',
+  sort: 'date',
+  limit: '25',
+  userip: '127.0.0.1',
+  useragent: 'Mozilla/%2F4.0%28Firefox%29'
+};
+// var publisher = "?publisher=" + secrets['indeed_api_key'];
+// var format = "&format=" + "json";
+// var query = "&q=" + "junior+web+developer";
+// var loc = "&l=" + "New+York%2C+NY";
+// var sort = "&sort=" + "";
+// var radius = "&radius=" + "10";
+// var site_type = "&st=" + "";
+// var job_type = "&jt=" + "fulltime";
+// var start = "&start=" + "";
+// var limit = "&limit=" + "";
+// var fromage = "&fromage=" + "last";
+// var filter = "&filter=" + "";
+// var latlong = "&latlong=" + "1";
+// var country = "&co=" + "us";
+// var channel = "&chnl=" + "";
+// var userip = "&userip=" + "1.2.3.4";
+// var useragent = "&useragent=" + "Mozilla/%2F4.0%28Firefox%29";
+// var ver = "&v=" + "2";
+// var highlight = "&highlight="+"0";
 
-var search_url = queryurl + publisher + format + query + loc + sort + radius + site_type + job_type + start + limit + fromage + filter + latlong + country + channel + userip + useragent + ver + highlight;
+// var search_url = queryurl + publisher + format + query + loc + sort + radius + site_type + job_type + start + limit + fromage + filter + latlong + country + channel + userip + useragent + ver + highlight;
 
 function getJobDetail(job) {
   var result = {};
@@ -49,14 +62,19 @@ function getJobDetail(job) {
   });
 }
 
-function getData() {
+function getData(query, city,start) {
   return Q.promise(function(resolve,reject) {
+    requestoptions['q'] = query;
+    requestoptions['l'] = city;
+    requestoptions['start'] = start;
+    var querystring = Object.keys(requestoptions).map(function(k) {return k + '=' + encodeURIComponent(requestoptions[k]);}).join('&');
+    var search_url = baseurl + "?" + querystring;
+    // console.log(search_url);
     request(search_url, function (error, response, body) {
       var results = [];
       if(!error && response.statusCode === 200) {
         var data = JSON.parse(body);
         var joblist = data.results;
-
         var detaillist = joblist.map(getJobDetail);
         resolve(Q.all(detaillist));
       } else {
