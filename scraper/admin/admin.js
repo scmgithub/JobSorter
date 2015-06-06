@@ -3,6 +3,8 @@ var bodyParser = require('body-parser');
 var request = require('request');
 var mustacheExpress = require('mustache-express');
 var assert = require('assert');
+var Q = require('q');
+
 
 var requester = require('../indeedRequester');
 
@@ -27,28 +29,28 @@ app.get('/', function(req, res) {
 app.post('/indeed/search', function(req, res) {
 
   var i = 1;
-  var timer = setInterval(function() { 
+//  var timer = setInterval(function() { 
 
 //  for (var i=1; i<=parseInt(req.body.repeat); i++) {
     console.log("Executing Indeed scrape: '"+req.body.query+"'; ("+i+"/"+req.body.repeat+")"+(i<parseInt(req.body.repeat) ? ", timeout:"+req.body.timeout : "") );
-    // requester.getData(req.body).then(function(data) {
-    //   MongoClient.connect(dburl, function(err, db) {
-    //     if (err) throw (err);
-    //     if(data.length > 0) {
-    //       db.collection('joblistings').insert(data);
-    //       res.json(data);
-    //     } else {
-    //       res.send("No results found.")
-    //     }
-    //     db.close();
-    //   });
-    // });
-    i++;
-    if (i>req.body.repeat) {
-      clearInterval(timer);
-    }
-  }, req.body.timeout * 1000);
-  res.send("Fake query");
+    requester.getData(req.body).then(function(data) {
+      MongoClient.connect(dburl, function(err, db) {
+        if (err) throw (err);
+        if(data.length > 0) {
+          db.collection('joblistings').insert(data);
+          res.json(data);
+        } else {
+          res.send("No results found.")
+        }
+        db.close();
+      });
+    });
+//    i++;
+//    if (i>req.body.repeat) {
+//      clearInterval(timer);
+//    }
+//  }, req.body.timeout * 1000);
+//  res.send("Fake query");
 });
 
 app.get('/db/query', function(req, res) {

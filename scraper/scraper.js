@@ -34,6 +34,30 @@ app.get('/loadintodb', function(req,res) {
   });
 });
 
+app.get('/todayslistings', function(req, res) {
+  getToday();
+});
+
+function getToday() {
+  var todaysJobs=[];
+  var todaysJobsCount=null;
+  var start=1;
+
+  while (todaysJobsCount === null || todaysJobs.length < todaysJobsCount) {
+    requester.getJobList({query:' ', job_type:' ',start:start, limit:'25', fromage:'0'}).then(function(data) {
+      if (data.totalResults === 0) {
+        console.log("Warning: returned totalResults is zero.");
+      }
+      if (todaysJobsCount === null || data.totalResults > todaysJobsCount) {
+        todaysJobsCount = data.totalResults;
+      }
+        data.results.forEach(function(res) {
+          todaysJobs.push(res);
+        });
+    });
+  }
+}
+
 function getbatch(query,city,cur) {
   curconnections += 25;
   requester.getData(query,city,cur).then(function(data) {
