@@ -7,8 +7,7 @@ from gensim import corpora, models, similarities, utils
 corpus = corpora.MmCorpus('tmp/corpus')
 
 model = models.LdaMulticore.load('tmp/lda')
-# model.print_topics()
 
-# print corpus[10]
-print model[corpus[10]]
-print model.print_topics()
+index = similarities.Similarity('tmp/ldaindextemp',(model[doc] for doc in corpus),model.num_topics)
+index.save('tmp/ldaindex')
+# print index[corpus[0]]
