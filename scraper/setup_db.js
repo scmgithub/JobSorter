@@ -8,7 +8,9 @@ MongoClient.connect(dburl, function(err,db) {
   assert.equal(null, err);
   console.log("Connected to mongo server.");
 
-  db.collection('joblistings').createIndex( { snippet: "text", job_detail: "text" }, function(err, res) {
+  db.collection('joblistings').dropIndexes();
+
+  db.collection('joblistings').createIndex( { snippet: "text", job_detail: "text", title: "text" }, function(err, res) {
       assert.equal(null,err);
       console.log("Text Index created: " + res);
       db.close();
