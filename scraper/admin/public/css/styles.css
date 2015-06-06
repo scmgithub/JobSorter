@@ -1,0 +1,59 @@
+body,
+html {
+  margin:0;
+  padding:0;
+  color:#000;
+  background:#E6E6E6;
+}
+
+#wrap {
+  width:850px;
+  margin:0 auto;
+  border-style: solid;
+  border-width: 1px;
+}
+
+#indeed-search-params {
+  border-style: solid;
+  border-width: 1px;
+  float:left;
+  width:498px
+}
+
+#db-query {
+  border-style: solid;
+  border-width: 1px;
+  float:right;
+  width:248px;
+}
+
+label {
+    display: inline-block;
+    float: left;
+    clear: left;
+    width: 150px;
+    text-align: right;
+    margin-top: 2px;
+}
+
+input {
+  display: inline-block;
+  float: left;
+  margin-top: 2px;
+  margin-right: 0px;
+  margin-left: 5px;
+  margin-bottom: 2px;
+}
+
+h1 {
+  text-align:center
+}
+
+h3 {
+  text-align:center
+}
+
+#query-submit {  
+  margin-top: 3px;
+  margin-left: 10px;
+}
