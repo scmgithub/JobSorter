@@ -29,12 +29,81 @@ app.get('/loadintodb', function(req,res) {
       if (err) throw(err);
       db.collection('joblistings').insert(data);
       res.send('wrote to database maybe');
+      db.close();
     });
   });
 });
 
+function getbatch(query,city,cur) {
+  curconnections += 25;
+  requester.getData(query,city,cur).then(function(data) {
+    MongoClient.connect(dburl,function(err,db) {
+      if (err) console.log("mongo err on index: "+cur);
+      else {
+        db.collection('joblistings').insert(data);
+      }
+      db.close();
+    });
+  });
+}
+
+var curbatch = 0;
+var mytimer = null;
+var loaded = false;
+
+app.get('/load10k', function(req,res) {
+  if (!loaded) {
+    var curconnections = 0;
+    var maxconnections = 100;
+    MongoClient.connect(dburl, function(err,db) {
+      function getbatchquick(query,city,cur) {
+        console.log('starting '+cur);
+        curconnections += 25;
+        requester.getData(query,city,cur).then(function(data) {
+          db.collection('joblistings').insert(data);
+          curconnections -= 25;
+          console.log('finished '+cur);
+        }, function(reqerror) {
+          console.log(reqerror + " cur="+cur);
+        });
+      }
+
+      var curcounter = 0;
+      function checkbatch() {
+        if (curcounter >= 10000) {
+          clearInterval(mytimer);
+          db.close();
+        } else if (curconnections < maxconnections) {
+          getbatchquick("","New York,NY",curcounter);
+          curcounter += 25;
+        }
+      }
+
+      mytimer = setInterval(checkbatch, 500);
+    });
+    loaded = true;
+  }
+});
+
+app.get('/load1k', function(req,res) {
+  if (mytimer === null && curbatch === 0) {
+    mytimer = setInterval( function() {
+      if (curbatch < 1000) {
+        console.log(curbatch);
+        getbatch("","New York,NY",curbatch);
+        curbatch += 25;
+      } else {
+        clearInterval(mytimer);
+      }
+    }, 1000);
+    res.send('started load');
+  } else {
+    res.send('still loading. at: '+curbatch);
+  }
+});
+
 app.get('/test', function(req,res) {
-  requester.getData().then(function(data) {
+  requester.getData("","New York, NY",10).then(function(data) {
     // console.dir(data);
     res.render('test', {
       rows: data
