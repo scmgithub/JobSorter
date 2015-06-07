@@ -50,7 +50,7 @@ function getJobDetail(job) {
   result['url'] = job.url;
 
   return Q.promise(function(resolve,reject) {
-    request (job.url, function (jerror, jresponse, jbody) {
+    request ({url: job.url, timeout: 30000}, function (jerror, jresponse, jbody) {
       if(!jerror && jresponse.statusCode===200) {
         var $ = cheerio.load(jbody);
         result['job_detail'] = $('#job_summary').text();
@@ -88,10 +88,9 @@ function getJobList(context) {
   var ver = "&v=" + "2";
 
   var search_url = queryurl + publisher + format + query + loc + sort + radius + site_type + job_type + start + limit + fromage + filter + latlong + country + channel + highlight + userip + useragent + ver;
-
+console.log(search_url);
   return Q.promise(function(resolve,reject) {
     request(search_url, function (error, response, body) {
-      var results = [];
       if(!error && response.statusCode === 200) {
         var data = JSON.parse(body);
         resolve(data);
@@ -131,7 +130,6 @@ function getData(context) {
 
   return Q.promise(function(resolve,reject) {
     request(search_url, function (error, response, body) {
-      var results = [];
       if(!error && response.statusCode === 200) {
         var data = JSON.parse(body);
         var joblist = data.results;
@@ -168,5 +166,6 @@ function getDataEvan(query, city,start) {
 
 module.exports = {
   getData: getData,
-  getJobList: getJobList
+  getJobList: getJobList,
+  getJobDetail: getJobDetail
 };
