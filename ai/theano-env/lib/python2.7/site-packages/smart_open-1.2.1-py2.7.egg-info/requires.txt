@@ -1,0 +1,2 @@
+boto >= 2.32
+bz2file
