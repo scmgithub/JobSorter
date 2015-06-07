@@ -96,7 +96,7 @@ function getToday(loaded,next) {
 
     function getDetails(postings) {
       var postingsForDB = Array(postings.length);
-      var curPosting = 0;
+      var numRequestsSent = 0;
 
       var spawned = 0;
       var numWorkers = Math.min(100, postings.length); //max concurrent requests
@@ -105,7 +105,7 @@ function getToday(loaded,next) {
       // spawn workers
       var workersFinished = 0;
       function initialSpawn() {
-        getOneJob(curPosting);
+        getOneJob();
         spawned += 1;
         if (spawned >= numWorkers) {
           clearInterval(spawner);
@@ -113,81 +113,46 @@ function getToday(loaded,next) {
       }
 
       function getOneJob() {
-        var index = curPosting;
-        curPosting += 1;
-        console.log('fetching detail for '+index);
-        requester.getJobDetail(postings[index])
-          .then(function(job) {
-            postingsForDB[index] = job;
-            console.log("inserted detail for "+index);
-            if (curPosting < postings.length - 1) {
+        if (numRequestsSent >= postings.length) {
+          workersFinished += 1;
+          console.log("worker "+workersFinished+" finished");
+          if (workersFinished >= numWorkers) {
+            console.log("all workers finished");
+            // write new jobs to db
+            persistToDb(postingsForDB);
+          }
+        } else {
+          var index = numRequestsSent;
+          numRequestsSent += 1;
+          console.log('fetching detail for '+index);
+          requester.getJobDetail(postings[index])
+            .then(function(job) {
+              postingsForDB[index] = job;
+              console.log("inserted detail for "+index);
               setTimeout(getOneJob, 0);
-            } else {
-              workersFinished += 1;
-              if (workersFinished >= numWorkers) {
-                next(null, postingsForDB);
-              }
-            }
-          }, function(error) {
-            workersFinished += 1;
-            if (workersFinished >= numWorkers) {
-              next(null, postingsForDB);
-            }
-          });
+            }, function(error) {
+              console.log("error at index:"+index+"\n"+error);
+              setTimeout(getOneJob, 0);
+            });
+        }
       }
     }
-
-//     MongoClient.connect(dburl, function(err,db) {
-//       function getbatchquick(context,cur) {
-//         console.log('starting '+cur);
-//         curconnections += 25;
-//         requester.getJobList(context,cur).then(function(data) {
-//           db.collection('joblistings').insert(data);
-//           curconnections -= 25;
-//           console.log('finished '+cur);
-//         }, function(reqerror) {
-//           console.log(reqerror + " cur="+cur);
-//         });
-//       }
-
-//       var curcounter = 0;
-//       function checkbatch() {
-//         if (curcounter >= 10000) {
-//           clearInterval(mytimer);
-//           db.close();
-//         } else if (curconnections < maxconnections) {
-//           getbatchquick({query:' ', job_type:' ',start:curcounter, limit:'25', fromage:'0'},curcounter);
-//           curcounter += 25;
-//         }
-//       }
-
-//       mytimer = setInterval(checkbatch, 500);
-//     });
-// //
-//     while (todaysJobsCount === null || todaysJobs.length < todaysJobsCount) {
-//       requester.getJobList({query:' ', job_type:' ',start:start, limit:'25', fromage:'0'}).then(function(data) {
-//         if (data.totalResults === 0) {
-//           console.log("Warning: returned totalResults is zero.");
-//           return;
-//         }
-//   console.log("start: "+start+", total: "+data.totalResults);
-//         if (todaysJobsCount === null || data.totalResults > todaysJobsCount) {
-//           todaysJobsCount = data.totalResults;
-//         }
-
-//         data.results.forEach(function(res) {
-//           todaysJobs.push(res);
-//         });
-//         start = data.end+1;
-//         console.log("todaysJobs array:");
-//         console.log(todaysJobs);
-//       });
-//       return todaysJobs;
-//     }
-//
+      
+    function persistToDb(jobs) {
+      MongoClient.connect(dburl, function(err,db) {
+        if (err) throw(err);
+        if (jobs.length > 0) {
+          db.collection('joblistings').insert(jobs);
+        } else {
+          console.log("No new jobs to add to database at this time.");
+        }
+        db.close();
+        next(null,'wrote '+jobs.length+' jobs to database, maybe.');
+      });
+    }
     loaded = true;
-  }
-}
+  }  // end of if (!loaded)
+}  // end of GetToday()
 
 function getbatch(query,city,cur) {
   curconnections += 25;

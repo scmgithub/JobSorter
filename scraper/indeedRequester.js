@@ -56,7 +56,7 @@ function getJobDetail(job) {
         result['job_detail'] = $('#job_summary').text();
         resolve(result);
       } else {
-        reject("Something went wrong:\nurl:"+job.url+"\nresponse code:\n"+jresponse.statusCode);
+        reject("Something went wrong:\nurl:"+job.url+"error: "+jerror);
       }
     });
   });
