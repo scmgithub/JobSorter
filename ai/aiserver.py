@@ -73,9 +73,15 @@ def ldasimilar():
   jobid = request.args.get('j')
   if (jobid != None):
     job = db.joblistings.find_one({"jobid": jobid},{'title':1,'job_detail':1})
+    similardocs = ldaindex[ldamodel[corpus[1]]]
+    pairedids = sorted([[i,x] for i,x in enumerate(similardocs)], key=lambda a: -a[1])[:10]
+    print([[dict[a[0]], a[1]] for a in pairedids])
+    return 'hi'
+    # return json.jsonify([[a,b] for a,b in ldamodel[corpus[1]].iteritems()])
+    # return json.jsonify(ldamodel[corpus[1]])
     if (job != None):
       # return json.jsonify(ldamodel[dict.doc2bow(preprocessjob(job))])
-      return json.jsonify(ldaindex[ldamodel[corpus[1]]])
+      return 'harumph'
     else:
       return 'no job found'
   else:
