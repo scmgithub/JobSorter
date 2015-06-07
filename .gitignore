@@ -2,5 +2,5 @@ node_modules
 secrets.json
 db
 tmp
-venv
+theano-env
 ai/data
