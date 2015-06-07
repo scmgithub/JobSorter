@@ -8,8 +8,15 @@ corpus = corpora.MmCorpus('tmp/corpus')
 
 model = models.LdaMulticore.load('tmp/lda')
 
-# index = similarities.Similarity('tmp/ldaindextemp',(model[doc] for doc in corpus),model.num_topics)
-# index.save('tmp/ldaindex')
+# index = similarities.MatrixSimilarity([model[doc] for doc in corpus],num_features = model.num_topics)
+# index.save()
 # print index[corpus[0]]
 
-index = similarities
+index = similarities.MatrixSimilarity.load('tmp/myindex')
+
+# print index[0]
+
+z = 0
+for s in index:
+  print str(z) + " " + str(sorted([[i,x] for i,x in enumerate(s)], key=lambda a: -a[1])[:10])
+  z += 1
