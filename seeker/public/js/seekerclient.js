@@ -17,7 +17,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     };
   })
 
-  .controller('search', function($scope, $http, $location) {
+  .controller('search', function($scope, $http, $location, currentUser) {
 
     // make sure modal gets inited properly
     $scope.modalindex = 0;
@@ -56,7 +56,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     } else if (typeof $location.search().ldasimilar !== 'undefined') {
       var jobid = $location.search().ldasimilar;
       // right now user is hardcoded. need to update angular app so we have access to the current user's email address, or pull it from the express server in a seperate request
-      $http({method: "GET", url: "http://localhost:5000/ldasimilar", params: {j: jobid, user: 'e'}})
+      $http({method: "GET", url: "http://localhost:5000/ldasimilar", params: {j: jobid, user: currentUser.email}})
         .success(function(data) {
           console.log(data);
           $scope.ratings = data.results.map(function(row) {return row.rating;});
@@ -82,10 +82,11 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     };
   })
 
-  .controller('login', function($scope,$http,$window,$location) {
+  .controller('login', function($scope,$http,$window,$location,currentUser) {
     $scope.submit = function() {
       $http.post("/login", {user: $scope.user})
         .success(function(data) {
+          currentUser.email = $scope.user.email;
           $window.sessionStorage.token = data.token;
           $location.path('app/home');
         })
@@ -95,7 +96,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
         });
     }
   })
-  .controller('signup', function($scope,$http,$window,$location) {
+  .controller('signup', function($scope,$http,$window,$location,currentUser) {
     $scope.user = {};
     $scope.submit = function() {
       if ($scope.user.password !== $scope.user.confirmpassword) {
@@ -105,6 +106,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
           .success(function(res,status) {
             $http.post("/login", {user: $scope.user})
               .success(function(data) {
+                currentUser.email = $scope.user.email;
                 $window.sessionStorage.token = data.token;
                 $location.path('app/home');
               })
@@ -138,6 +140,11 @@ angular.module('seeker',['ngRoute','ngSanitize'])
         return response || $q.when(response);
       }
     };
+  })
+
+  .factory('currentUser', function() {
+    var user = {};
+    return user;
   })
 
   .filter('newlines_as_br', function() {
