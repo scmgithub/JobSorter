@@ -22,6 +22,11 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+<h4 ng-if="rows.length == 0">No results found.  Please <a href='#/app/home'>search again.</a></h4>
+<div style="float: right;" ng-if="rows.length != 0">
+  <a href='http://www.indeed.com'>Jobs</a> by <a href='http://www.indeed.com'><img src='http://www.indeed.com/p/jobsearch.gif'></a> 
+</div>
+<ul style='clear: both'>
   <li ng-repeat="row in rows">
     <h4>
     <span class="star-rating" star-rating rating-value="ratings[$index]" data-max="5" on-rating-selected="rateFunction($index, rating)"></span>
