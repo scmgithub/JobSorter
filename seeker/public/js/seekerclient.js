@@ -110,6 +110,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
   })
   .controller('signup', function($scope,$http,$window,$location,currentUser) {
     $scope.user = {};
+    var bothpasswordsupdated = false;
     $scope.submit = function() {
       if ($scope.user.password !== $scope.user.confirmpassword) {
         alert("passwords don't match");

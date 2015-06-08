@@ -114,6 +114,13 @@ def corpuscreate():
   # else:
   #   return 'nothin'
 
+@app.route("/lsimodel", methods=['POST'])
+def lsimodelcreate():
+  global dict,corpus,lsimodel
+  # lsimodel = models.LdaMulticore(corpus, num_topics=100, id2word=dict, workers=3, passes=8, iterations=100)
+  lsimodel.save('data/lsiamodel')
+  return 'lsi model created'
+
 @app.route("/ldamodel", methods=['POST'])
 def ldamodelcreate():
   global dict,corpus,ldamodel
@@ -196,6 +203,9 @@ def main():
   </form>
   <form method='POST' action='bowindex'>
     <button>create bow index</button>
+  </form>
+  <form method='POST' action='lsimodel'>
+    <button>create lsi model</button>
   </form>
   </body></html>"""
 

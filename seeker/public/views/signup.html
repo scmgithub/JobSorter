@@ -5,11 +5,12 @@
   </div>
   <div class="form-group">
     <label for="password">Password</label>
-    <input type="password" class="form-control" ng-model="user.password" name="password" placeholder="Password">
+    <input type="password" class="form-control" ng-model="user.password" name="password" placeholder="Password" ng-blur="passwordentered = true">
   </div>
   <div class="form-group">
     <label for="confirmpassword">Confirm Password</label>
-    <input type="password" class="form-control" ng-model="user.confirmpassword" name="confirmpassword" placeholder="Password">
+    <input type="password" class="form-control" ng-model="user.confirmpassword" name="confirmpassword" placeholder="Password" ng-blur="confirmentered = true" ng-change="passwordtype()">
+    <div style="color:red" ng-if="passwordentered && confirmentered && user.password != user.confirmpassword">Passwords don't match</div>
   </div>
   <button type="submit" class="btn btn-default">Sign up</button>
 </form>
