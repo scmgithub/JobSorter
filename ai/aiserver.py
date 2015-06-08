@@ -1,6 +1,7 @@
 import logging
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
+import unicodedata
 from flask import Flask, request, json
 from pymongo import MongoClient
 from gensim import corpora, models, similarities, utils
@@ -30,14 +31,44 @@ except:
   ldaindex = ""
 print(ldaindex)
 
+id2jobid = {}
+jobid2id = {}
+def loadJobidHash():
+  global id2jobid,jobid2id
+  i = 0
+  for line in open('data/jobids'):
+    id2jobid[i] = line.rstrip()
+    jobid2id[line.rstrip()] = i
+    i += 1
+
+try:
+  loadJobidHash()
+  print("loaded jobidhashes")
+except:
+  print("trouble loading jobidhash. maybe re-preprocess")
+
+
+
 def preprocessjob(job):
-  return utils.simple_preprocess(job['title'] + " " + job['job_detail'])
+  return utils.simple_preprocess(unicodedata.normalize('NFKC',job['title'] + " " + job['job_detail']).encode('ascii','ignore'))
+
+@app.route("/preprocess", methods=['POST'])
+def preprocesscreate():
+  myidfile = open('data/jobids','w')
+  mydatafile = open('data/preprocess', 'w')
+  for job in db.joblistings.find({},{'title':1,'job_detail':1,'jobid':1}):
+    myidfile.write("%s\n" % job['jobid'])
+    mydatafile.write("%s\n" % " ".join(preprocessjob(job)))
+  myidfile.close()
+  mydatafile.close()
+  loadJobidHash()
+  return 'preprocessed data created'
 
 
 @app.route("/dict", methods=['POST'])
 def dictcreate():
   global dict
-  dict = corpora.Dictionary( preprocessjob(job) for job in db.joblistings.find({},{'title':1,'job_detail':1}) )
+  dict = corpora.Dictionary(line.split() for line in open('data/preprocess'))
   dict.filter_extremes(no_below = 3, no_above = 0.7, keep_n = None)
   dict.save('data/dict')
   return 'dict created'
@@ -45,7 +76,7 @@ def dictcreate():
 @app.route("/corpus", methods=['POST'])
 def corpuscreate():
   global dict,corpus
-  generator = (dict.doc2bow(preprocessjob(job)) for job in db.joblistings.find({},{'title':1,'job_detail':1}))
+  generator = (dict.doc2bow(line.split()) for line in open('data/preprocess'))
   corpora.MmCorpus.serialize('data/corpus', generator)
   return "created corpus"
   # if request.form['testvar']:
@@ -56,7 +87,7 @@ def corpuscreate():
 @app.route("/ldamodel", methods=['POST'])
 def ldamodelcreate():
   global dict,corpus,ldamodel
-  ldamodel = models.LdaMulticore(corpus, num_topics=100, id2word=dict, workers=8, passes=4, iterations=100)
+  ldamodel = models.LdaMulticore(corpus, num_topics=100, id2word=dict, workers=3, passes=8, iterations=100)
   ldamodel.save('data/ldamodel')
   return 'lda model created'
 
@@ -69,27 +100,39 @@ def ldaindexcreate():
 
 @app.route("/ldasimilar")
 def ldasimilar():
-  global dict,corpus,ldamodel,ldaindex
+  global dict,corpus,ldamodel,ldaindex,jobid2id,id2jobid
   jobid = request.args.get('j')
   if (jobid != None):
-    job = db.joblistings.find_one({"jobid": jobid},{'title':1,'job_detail':1})
-    similardocs = ldaindex[ldamodel[corpus[1]]]
-    pairedids = sorted([[i,x] for i,x in enumerate(similardocs)], key=lambda a: -a[1])[:10]
-    print([[dict[a[0]], a[1]] for a in pairedids])
-    return 'hi'
-    # return json.jsonify([[a,b] for a,b in ldamodel[corpus[1]].iteritems()])
-    # return json.jsonify(ldamodel[corpus[1]])
-    if (job != None):
-      # return json.jsonify(ldamodel[dict.doc2bow(preprocessjob(job))])
-      return 'harumph'
-    else:
-      return 'no job found'
+    try:
+      # convert jobid into corpus rownumber
+      jobnum = jobid2id[jobid]
+      # grab similarity scores from our lda index
+      similardocs = ldaindex[ldamodel[corpus[jobnum]]]
+      # sort by score and limit to the 20 best matches
+      nearest20 = sorted([[i,x] for i,x in enumerate(similardocs)], key=lambda a: -a[1])[:20]
+      # translate the row numbers into jobids
+      jobidpairs = [[id2jobid[a[0]], a[1]] for a in nearest20 if id2jobid[a[0]] != jobid]
+      # grab database entries for the row numbers
+      jobslistwithdata = {row['jobid']: row for row in db.joblistings.find({'jobid': {'$in': [a[0] for a in jobidpairs]}}, {'title':1,'jobid':1})}
+      # remove _id column from results because it messes up the json
+      for key in jobslistwithdata:
+        del jobslistwithdata[key]['_id']
+      # combine similarity scores with db results in finallist
+      finallist = []
+      for pair in jobidpairs:
+        finallist.append({'job': jobslistwithdata[pair[0]], 'similarity': str(pair[1])})
+      return json.jsonify({'results': finallist})
+    except KeyError:
+      return 'no job found in our similarity index'
   else:
     return "pass in a jobid with ?j="
 
 @app.route("/main")
 def main():
   return """<html><head></head><body>
+  <form method='POST' action='preprocess'>
+    <button>create preprocessed data</button>
+  </form>
   <form method='POST' action='dict'>
     <button>create dict</button>
   </form>
