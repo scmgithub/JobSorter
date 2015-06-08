@@ -6,6 +6,7 @@ from flask import Flask, request, json
 from flask.ext.cors import cross_origin
 from pymongo import MongoClient
 from gensim import corpora, models, similarities, utils
+from sklearn import svm
 app = Flask(__name__)
 app.debug = True
 client = MongoClient()
@@ -36,6 +37,16 @@ try:
 except:
   bowindex = ""
 print(bowindex)
+try:
+  tfidf = models.TfidfModel.load('data/tfidf')
+except:
+  tfidf = ""
+print(tfidf)
+try:
+  lsimodel = models.LsiModel.load('data/lsimodel')
+except:
+  lsimodel = ""
+print(lsimodel)
 
 id2jobid = {}
 jobid2id = {}
@@ -114,17 +125,24 @@ def corpuscreate():
   # else:
   #   return 'nothin'
 
+@app.route("/tfidf", methods=['POST'])
+def tfidfcreate():
+  global corpus,tfidf
+  tfidf = models.TfidfModel(corpus)
+  tfidf.save('data/tfidf')
+  return 'tfidf corpus created'
+
 @app.route("/lsimodel", methods=['POST'])
 def lsimodelcreate():
-  global dict,corpus,lsimodel
-  # lsimodel = models.LdaMulticore(corpus, num_topics=100, id2word=dict, workers=3, passes=8, iterations=100)
-  lsimodel.save('data/lsiamodel')
+  global dict,corpus,tfidf,lsimodel
+  lsimodel = models.LsiModel(tfidf[corpus], id2word=dict, num_topics=300)
+  lsimodel.save('data/lsimodel')
   return 'lsi model created'
 
 @app.route("/ldamodel", methods=['POST'])
 def ldamodelcreate():
   global dict,corpus,ldamodel
-  ldamodel = models.LdaMulticore(corpus, num_topics=100, id2word=dict, workers=3, passes=8, iterations=100)
+  ldamodel = models.LdaMulticore(corpus, num_topics=300, id2word=dict, workers=3, passes=8, iterations=100)
   ldamodel.save('data/ldamodel')
   return 'lda model created'
 
@@ -142,6 +160,53 @@ def bowindexcreate():
   bowindex.save('data/bowindex')
   return 'bow index created'
 
+@app.route("/lsiindex", methods=['POST'])
+def lsiindexcreate():
+  global corpus,tfidf,lsiindex,lsimodel
+  lsiindex = similarities.MatrixSimilarity(lsimodel[tfidf[corpus]])
+  lsiindex.save('data/lsiindex')
+  return 'lsi index created'
+
+@app.route("/toprated")
+def toprated():
+  global dict,corpus,tfidf,lsimodel,jobid2id,id2jobid
+  useremail = request.args.get('user')
+  reviews = list(db.reviews.find({'useremail': useremail}))
+  labels = []
+  reviewrowids = []
+  for review in reviews:
+    if review['jobid'] in jobid2id:
+      labels.append(float(review['rating']))
+      reviewrowids.append(jobid2id[review['jobid']])
+
+  samples = [tfidf[corpus[rowid]] for rowid in reviewrowids]
+  svmmodel = svm.SVR()
+  # svmmodel.fit(samples,labels)
+  # predictions = svmmodel.predict(tfidf[corpus])
+  # print predictions
+  return 'predicted stuff'
+
+
+
+@app.route("/lsisimilar")
+@cross_origin()
+def lsisimilar():
+  global dict,corpus,tfidf,lsiindex,jobid2id,id2jobid
+  jobid = request.args.get('j')
+  useremail = request.args.get('user')
+  if (jobid != None):
+    # test if jobid is in our corpus
+    if jobid in jobid2id:
+      # get similarity scores for all docs in the corpus
+      similardocs = lsiindex[tfidf[corpus[jobid2id[jobid]]]]
+      # turn scores into job pages with ratings
+      results = joblistFromSimilarities(similardocs, 20, useremail)
+      return json.jsonify({'results': results})
+    else:
+      return 'job '+jobid+' not found in our corpus. maybe the corpus is out of date.'
+  else:
+    return "pass in a jobid with ?j="
+
 @app.route("/bowsimilar")
 @cross_origin()
 def bowsimilar():
@@ -153,8 +218,6 @@ def bowsimilar():
     if jobid in jobid2id:
       # get similarity scores for all docs in the corpus
       similardocs = bowindex[corpus[jobid2id[jobid]]]
-      # print(similardocs)
-      # return 'hi'
       # turn scores into job pages with ratings
       results = joblistFromSimilarities(similardocs, 20, useremail)
       return json.jsonify({'results': results})
@@ -204,8 +267,14 @@ def main():
   <form method='POST' action='bowindex'>
     <button>create bow index</button>
   </form>
+  <form method='POST' action='tfidf'>
+    <button>create tfidf corpus</button>
+  </form>
   <form method='POST' action='lsimodel'>
     <button>create lsi model</button>
+  </form>
+  <form method='POST' action='lsiindex'>
+    <button>create lsi index</button>
   </form>
   </body></html>"""
 
