@@ -5,6 +5,7 @@ var mustacheExpress = require('mustache-express');
 var Q = require('q');
 
 var requester = require('./indeedRequester');
+var today = require('./getToday')
 
 var Mongo = require('mongodb');
 var MongoClient = Mongo.MongoClient;
@@ -36,123 +37,14 @@ app.get('/loadintodb', function(req,res) {
 });
 
 app.get('/todayslistings', function(req, res) {
-  getToday(loaded, function(err,data) {
-    if (err) console.log(err);
-    res.send(data);
-  });
-});
-
-function getToday(loaded,next) {
-  if (!loaded) {
-    var todaysJobs=[];
-    var todaysJobsCount=null;
-    var jobsRequested = 25;
-
-    getJobListChunk(0);
-
-    function getJobListChunk(start) {
-      requester.getJobList({query:' ', job_type:' ',start:start, limit:'25', fromage:'0'}).then(function(data) {
-        console.log("getting chunk "+start);
-        if (todaysJobsCount === null) {
-          todaysJobsCount = data.totalResults;
-          console.log('todaysJobsCount: '+todaysJobsCount);
-        }
-        todaysJobs = todaysJobs.concat(data.results);
-
-        if (jobsRequested >= todaysJobsCount) {
-          checkJobsInDB();
-        } else {
-          getJobListChunk(jobsRequested);
-          jobsRequested += 25;
-        }
-      });
-    }
- 
-    function checkJobsInDB() {
-      var newPostings=[];
-      MongoClient.connect(dburl, function(err, db) {
-        if (err) next("mongo err: "+err, null);
-        else {
-          Q.all(todaysJobs.map(function(posting) {
-            return Q.promise(function(resolve,reject) {
-              var cursor = db.collection('joblistings').find({jobid: posting.jobkey});
-              cursor.next(function(err, data) {
-                if (data === null) {
-                  console.log("Adding new posting with id: "+posting.jobkey);
-                  newPostings.push(posting);
-                } else {
-                  console.log("Job posting with id "+posting.jobkey+" already exists in db.");
-                }
-                resolve(true);
-              });
-            });
-          })).then(function() {
-            getDetails(newPostings);
-            db.close();
-          });
-        }
-      });
-    }
-
-    function getDetails(postings) {
-      var postingsForDB = Array(postings.length);
-      var numRequestsSent = 0;
-
-      var spawned = 0;
-      var numWorkers = Math.min(100, postings.length); //max concurrent requests
-      var spawner = setInterval(initialSpawn,50);
-
-      // spawn workers
-      var workersFinished = 0;
-      function initialSpawn() {
-        getOneJob();
-        spawned += 1;
-        if (spawned >= numWorkers) {
-          clearInterval(spawner);
-        }
-      }
-
-      function getOneJob() {
-        if (numRequestsSent >= postings.length) {
-          workersFinished += 1;
-          console.log("worker "+workersFinished+" finished");
-          if (workersFinished >= numWorkers) {
-            console.log("all workers finished");
-            // write new jobs to db
-            persistToDb(postingsForDB);
-          }
-        } else {
-          var index = numRequestsSent;
-          numRequestsSent += 1;
-          console.log('fetching detail for '+index);
-          requester.getJobDetail(postings[index])
-            .then(function(job) {
-              postingsForDB[index] = job;
-              console.log("inserted detail for "+index);
-              setTimeout(getOneJob, 0);
-            }, function(error) {
-              console.log("error at index:"+index+"\n"+error);
-              setTimeout(getOneJob, 0);
-            });
-        }
-      }
-    }
-      
-    function persistToDb(jobs) {
-      MongoClient.connect(dburl, function(err,db) {
-        if (err) throw(err);
-        if (jobs.length > 0) {
-          db.collection('joblistings').insert(jobs);
-        } else {
-          console.log("No new jobs to add to database at this time.");
-        }
-        db.close();
-        next(null,'wrote '+jobs.length+' jobs to database, maybe.');
-      });
-    }
+  if(!loaded) {
     loaded = true;
-  }  // end of if (!loaded)
-}  // end of GetToday()
+    today.getToday(function(err,data) {
+      if (err) console.log(err);
+      res.send(data);
+    });
+  }
+});
 
 function getbatch(query,city,cur) {
   curconnections += 25;
