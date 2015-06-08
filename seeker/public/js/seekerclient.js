@@ -23,6 +23,10 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     $scope.modalindex = 0;
     $scope.ratings = [-1];
 
+    $scope.findSimilarLDA = function(index) {
+      $location.path('/app/search').search({ldasimilar: $scope.rows[index].jobid});
+    };
+
     // persist ratings
     $scope.rateFunction = function(index, rating) {
       $http.post('/api/review', {
@@ -36,16 +40,27 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     };
 
     // run query and fill out results page
-    var query = $location.search().query;
-    $http({method: "GET", url: "/api/jobsearch", params: {q: query}})
-      .success(function(data) {
-        // set initial ratings for all the joblistings. -1 means unrated
-        $scope.ratings = data.map(function(row) {return row.rating;});
-        $scope.rows = data;
-      })
-      .error(function(err) {
-        alert(err);
-      });
+    if (typeof $location.search().query !== 'undefined') {
+      var query = $location.search().query;
+      $http({method: "GET", url: "/api/jobsearch", params: {q: query}})
+        .success(function(data) {
+          // set initial ratings for all the joblistings. -1 means unrated
+          $scope.ratings = data.map(function(row) {return row.rating;});
+          $scope.rows = data;
+        })
+        .error(function(err) {
+          alert(err);
+        });
+    } else if (typeof $location.search().ldasimilar !== 'undefined') {
+      var jobid = $location.search().ldasimilar;
+      $http({method: "GET", url: "http://localhost:5000/ldasimilar", params: {j: jobid}})
+        .success(function(data) {
+          $scope.rows = data;
+        })
+        .error(function(err) {
+          alert(err);
+        });
+    }
 
     // respond to click on snippet by showing modal
     $scope.showDetail = function(rowid) {

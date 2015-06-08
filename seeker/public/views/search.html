@@ -18,12 +18,10 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-
-<!-- -->
   <li ng-repeat="row in rows">
     <h4>
     <span class="star-rating" star-rating rating-value="ratings[$index]" data-max="5" on-rating-selected="rateFunction($index, rating)"></span>
-    {{row.title}}
+    {{row.title}}<button ng-click="findSimilarLDA($index)">Find similar (LDA)</button>
     </h4>
     <p ng-click="showDetail($index)">{{row.snippet}}</p>
   </li>
