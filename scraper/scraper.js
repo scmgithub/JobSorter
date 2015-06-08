@@ -5,7 +5,7 @@ var mustacheExpress = require('mustache-express');
 var Q = require('q');
 
 var requester = require('./indeedRequester');
-var today = require('./getToday')
+var today = require('./getToday');
 
 var Mongo = require('mongodb');
 var MongoClient = Mongo.MongoClient;

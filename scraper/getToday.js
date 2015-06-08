@@ -110,10 +110,13 @@ function getToday(next) {
       }
         
       function persistToDb(jobs) {
-        if (jobs.length > 0) {
-          db.collection('joblistings').insert(jobs, function(err,records) {
+        // clear empty jobs from array by looping with foreach
+        var clearedjobs = [];
+        jobs.forEach(function(job){clearedjobs.push(job);});
+        if (clearedjobs.length > 0) {
+          db.collection('joblistings').insert(clearedjobs, function(err,records) {
             if (err) next(err,null);
-            else next(null,'wrote '+jobs.length+' jobs to database, maybe.');
+            else next(null,'wrote '+clearedjobs.length+' jobs to database, maybe.');
           });
         } else {
           console.log("No new jobs to add to database at this time.");
