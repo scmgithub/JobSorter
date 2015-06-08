@@ -51,13 +51,19 @@ angular.module('seeker',['ngRoute','ngSanitize'])
         .error(function(err) {
           alert(err);
         });
+
+    // run similarity query and fill out results
     } else if (typeof $location.search().ldasimilar !== 'undefined') {
-      console.log('hey');
       var jobid = $location.search().ldasimilar;
-      $http({method: "GET", url: "http://localhost:5000/ldasimilar", params: {j: jobid}})
+      // right now user is hardcoded. need to update angular app so we have access to the current user's email address, or pull it from the express server in a seperate request
+      $http({method: "GET", url: "http://localhost:5000/ldasimilar", params: {j: jobid, user: 'e'}})
         .success(function(data) {
-          $scope.rows = data;
-          alert('success'+ data);
+          console.log(data);
+          $scope.ratings = data.results.map(function(row) {return row.rating;});
+          $scope.similarities = data.results.map(function(row) {return row.similarity;});
+          $scope.rows = data.results.map(function(row) {return row.job;});
+
+
         })
         .error(function(err) {
           alert("aiserver returned error: "+err);
@@ -114,6 +120,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     }
   })
 
+  // intercepts the http requests before they are sent out and adds in an authorization token to the headers
   .factory('authInterceptor', function($q, $window, $location) {
     return {
       request: function(config) {

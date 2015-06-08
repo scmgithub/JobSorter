@@ -103,9 +103,8 @@ def ldaindexcreate():
 @cross_origin()
 def ldasimilar():
   global dict,corpus,ldamodel,ldaindex,jobid2id,id2jobid
-  print('aaaaaarrrrgggggggh')
   jobid = request.args.get('j')
-  print(jobid)
+  useremail = request.args.get('user')
   if (jobid != None):
     try:
       # convert jobid into corpus rownumber
@@ -117,14 +116,21 @@ def ldasimilar():
       # translate the row numbers into jobids
       jobidpairs = [[id2jobid[a[0]], a[1]] for a in nearest20 if id2jobid[a[0]] != jobid]
       # grab database entries for the row numbers
-      jobslistwithdata = {row['jobid']: row for row in db.joblistings.find({'jobid': {'$in': [a[0] for a in jobidpairs]}}, {'title':1,'jobid':1})}
+      jobslistwithdata = {row['jobid']: row for row in db.joblistings.find({'jobid': {'$in': [a[0] for a in jobidpairs]}})}
       # remove _id column from results because it messes up the json
       for key in jobslistwithdata:
         del jobslistwithdata[key]['_id']
-      # combine similarity scores with db results in finallist
+      # look up reviews based on passed in email
+      jobreviewdict = {}
+      if (useremail != None):
+        jobreviewlist = list(db.reviews.find({'useremail': useremail, 'jobid': {'$in': [a[0] for a in jobidpairs]}}))
+        jobreviewdict = {a['jobid']: a['rating'] for a in jobreviewlist}
+      # combine similarity scores, reviews, and jobdetails in finallist
       finallist = []
       for pair in jobidpairs:
-        finallist.append({'job': jobslistwithdata[pair[0]], 'similarity': str(pair[1])})
+        if (pair[0] not in jobreviewdict):
+          jobreviewdict[pair[0]] = -1
+        finallist.append({'job': jobslistwithdata[pair[0]], 'similarity': str(pair[1]), 'rating': jobreviewdict[pair[0]]})
       return json.jsonify({'results': finallist})
     except KeyError:
       return 'no job found in our similarity index'
