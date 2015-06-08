@@ -114,7 +114,7 @@ def ldasimilar():
       # sort by score and limit to the 20 best matches
       nearest20 = sorted([[i,x] for i,x in enumerate(similardocs)], key=lambda a: -a[1])[:20]
       # translate the row numbers into jobids
-      jobidpairs = [[id2jobid[a[0]], a[1]] for a in nearest20 if id2jobid[a[0]] != jobid]
+      jobidpairs = [[id2jobid[a[0]], a[1]] for a in nearest20] #if id2jobid[a[0]] != jobid]
       # grab database entries for the row numbers
       jobslistwithdata = {row['jobid']: row for row in db.joblistings.find({'jobid': {'$in': [a[0] for a in jobidpairs]}})}
       # remove _id column from results because it messes up the json
