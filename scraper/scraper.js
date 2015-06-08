@@ -234,7 +234,8 @@ app.get('/test', function(req,res) {
   });
 });
 
-app.listen(3000, function(){console.log("scraper started on port 3000");});
+var port = 3002
+app.listen(port, function(){console.log("scraper started on port "+port);});
 
 
 //jobtitle company city state country snippet jobkey url
