@@ -46,6 +46,8 @@ function getJobDetail(job) {
   result['title'] = job.jobtitle;
   result['company'] = job.company;
   result['location'] = job.formattedLocation;
+  result['lat'] = job.latitude;
+  result['long'] = job.longitude;
   result['snippet'] = job.snippet;
   result['url'] = job.url;
 
@@ -88,7 +90,7 @@ function getJobList(context) {
   var ver = "&v=" + "2";
 
   var search_url = queryurl + publisher + format + query + loc + sort + radius + site_type + job_type + start + limit + fromage + filter + latlong + country + channel + highlight + userip + useragent + ver;
-console.log(search_url);
+
   return Q.promise(function(resolve,reject) {
     request(search_url, function (error, response, body) {
       if(!error && response.statusCode === 200) {

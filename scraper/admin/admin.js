@@ -34,6 +34,7 @@ app.post('/indeed/search', function(req, res) {
 //  for (var i=1; i<=parseInt(req.body.repeat); i++) {
     console.log("Executing Indeed scrape: '"+req.body.query+"'; ("+i+"/"+req.body.repeat+")"+(i<parseInt(req.body.repeat) ? ", timeout:"+req.body.timeout : "") );
     requester.getData(req.body).then(function(data) {
+
       MongoClient.connect(dburl, function(err, db) {
         if (err) throw (err);
         if(data.length > 0) {

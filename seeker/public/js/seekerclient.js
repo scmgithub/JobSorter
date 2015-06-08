@@ -52,6 +52,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
       $scope.modalindex = rowid;
       $scope.modaltitle = $scope.rows[rowid].title;
       $scope.modalbody = $scope.rows[rowid].job_detail;
+      $scope.mapurl = 'http://maps.googleapis.com/maps/api/staticmap?markers='+$scope.rows[rowid].lat+','+$scope.rows[rowid].long+'&zoom=13&size=250x250';
       $("#detailModal").modal();
     };
   })
