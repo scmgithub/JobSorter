@@ -101,6 +101,7 @@ def ldaindexcreate():
 @app.route("/ldasimilar")
 def ldasimilar():
   global dict,corpus,ldamodel,ldaindex,jobid2id,id2jobid
+  print('aaaaaarrrrgggggggh')
   jobid = request.args.get('j')
   if (jobid != None):
     try:
