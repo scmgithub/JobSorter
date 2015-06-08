@@ -52,13 +52,15 @@ angular.module('seeker',['ngRoute','ngSanitize'])
           alert(err);
         });
     } else if (typeof $location.search().ldasimilar !== 'undefined') {
+      console.log('hey');
       var jobid = $location.search().ldasimilar;
       $http({method: "GET", url: "http://localhost:5000/ldasimilar", params: {j: jobid}})
         .success(function(data) {
           $scope.rows = data;
+          alert('success'+ data);
         })
         .error(function(err) {
-          alert(err);
+          alert("aiserver returned error: "+err);
         });
     }
 

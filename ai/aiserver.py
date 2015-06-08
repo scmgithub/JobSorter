@@ -3,6 +3,7 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 import unicodedata
 from flask import Flask, request, json
+from flask.ext.cors import cross_origin
 from pymongo import MongoClient
 from gensim import corpora, models, similarities, utils
 app = Flask(__name__)
@@ -99,10 +100,12 @@ def ldaindexcreate():
   return 'lda index created'
 
 @app.route("/ldasimilar")
+@cross_origin()
 def ldasimilar():
   global dict,corpus,ldamodel,ldaindex,jobid2id,id2jobid
   print('aaaaaarrrrgggggggh')
   jobid = request.args.get('j')
+  print(jobid)
   if (jobid != None):
     try:
       # convert jobid into corpus rownumber
