@@ -26,6 +26,9 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     $scope.findSimilarLDA = function(index) {
       $location.path('/app/search').search({ldasimilar: $scope.rows[index].jobid});
     };
+    $scope.findSimilarBOW = function(index) {
+      $location.path('/app/search').search({bowsimilar: $scope.rows[index].jobid});
+    };
 
     // persist ratings
     $scope.rateFunction = function(index, rating) {
@@ -51,18 +54,28 @@ angular.module('seeker',['ngRoute','ngSanitize'])
         .error(function(err) {
           alert(err);
         });
-
-    // run similarity query and fill out results
+    // run lda similarity query and fill out results
     } else if (typeof $location.search().ldasimilar !== 'undefined') {
       var jobid = $location.search().ldasimilar;
-
       $http({method: "GET", url: "http://localhost:5000/ldasimilar", params: {j: jobid, user: currentUser.email}})
         .success(function(data) {
           console.log(data);
           $scope.ratings = data.results.map(function(row) {return row.rating;});
           $scope.similarities = data.results.map(function(row) {return row.similarity;});
           $scope.rows = data.results.map(function(row) {return row.job;});
-
+        })
+        .error(function(err) {
+          alert("aiserver returned error: "+err);
+        });
+    // run bow similarity query and fill out results
+    } else if (typeof $location.search().bowsimilar !== 'undefined') {
+      var jobid = $location.search().bowsimilar;
+      $http({method: "GET", url: "http://localhost:5000/bowsimilar", params: {j: jobid, user: currentUser.email}})
+        .success(function(data) {
+          console.log(data);
+          $scope.ratings = data.results.map(function(row) {return row.rating;});
+          $scope.similarities = data.results.map(function(row) {return row.similarity;});
+          $scope.rows = data.results.map(function(row) {return row.job;});
         })
         .error(function(err) {
           alert("aiserver returned error: "+err);
@@ -97,6 +110,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
   })
   .controller('signup', function($scope,$http,$window,$location,currentUser) {
     $scope.user = {};
+    var bothpasswordsupdated = false;
     $scope.submit = function() {
       if ($scope.user.password !== $scope.user.confirmpassword) {
         alert("passwords don't match");

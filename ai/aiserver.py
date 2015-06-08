@@ -31,6 +31,11 @@ try:
 except:
   ldaindex = ""
 print(ldaindex)
+try:
+  bowindex = similarities.MatrixSimilarity.load('data/bowindex')
+except:
+  bowindex = ""
+print(bowindex)
 
 id2jobid = {}
 jobid2id = {}
@@ -47,6 +52,30 @@ try:
   print("loaded jobidhashes")
 except:
   print("trouble loading jobidhash. maybe re-preprocess")
+
+def joblistFromSimilarities(simscores, numdocs, useremail):
+  global id2jobid
+  # sort by score and limit to numdocs
+  nearest = sorted([[i,x] for i,x in enumerate(simscores)], key=lambda a: -a[1])[:20]
+  # translate the row numbers into jobids
+  jobidpairs = [[id2jobid[a[0]], a[1]] for a in nearest] #if id2jobid[a[0]] != jobid]
+  # grab database entries for the row numbers
+  jobslistwithdata = {row['jobid']: row for row in db.joblistings.find({'jobid': {'$in': [a[0] for a in jobidpairs]}})}
+  # remove _id column from results because it messes up the json
+  for key in jobslistwithdata:
+    del jobslistwithdata[key]['_id']
+  # look up reviews based on passed in email
+  jobreviewdict = {}
+  if (useremail != None):
+    jobreviewlist = list(db.reviews.find({'useremail': useremail, 'jobid': {'$in': [a[0] for a in jobidpairs]}}))
+    jobreviewdict = {a['jobid']: a['rating'] for a in jobreviewlist}
+  # combine similarity scores, reviews, and jobdetails in finallist
+  finallist = []
+  for pair in jobidpairs:
+    if (pair[0] not in jobreviewdict):
+      jobreviewdict[pair[0]] = -1
+    finallist.append({'job': jobslistwithdata[pair[0]], 'similarity': str(pair[1]), 'rating': jobreviewdict[pair[0]]})
+  return finallist
 
 
 
@@ -85,6 +114,13 @@ def corpuscreate():
   # else:
   #   return 'nothin'
 
+@app.route("/lsimodel", methods=['POST'])
+def lsimodelcreate():
+  global dict,corpus,lsimodel
+  # lsimodel = models.LdaMulticore(corpus, num_topics=100, id2word=dict, workers=3, passes=8, iterations=100)
+  lsimodel.save('data/lsiamodel')
+  return 'lsi model created'
+
 @app.route("/ldamodel", methods=['POST'])
 def ldamodelcreate():
   global dict,corpus,ldamodel
@@ -99,6 +135,34 @@ def ldaindexcreate():
   ldaindex.save('data/ldaindex')
   return 'lda index created'
 
+@app.route("/bowindex", methods=['POST'])
+def bowindexcreate():
+  global corpus,bowindex
+  bowindex = similarities.MatrixSimilarity(corpus)
+  bowindex.save('data/bowindex')
+  return 'bow index created'
+
+@app.route("/bowsimilar")
+@cross_origin()
+def bowsimilar():
+  global dict,corpus,bowindex,jobid2id,id2jobid
+  jobid = request.args.get('j')
+  useremail = request.args.get('user')
+  if (jobid != None):
+    # test if jobid is in our corpus
+    if jobid in jobid2id:
+      # get similarity scores for all docs in the corpus
+      similardocs = bowindex[corpus[jobid2id[jobid]]]
+      # print(similardocs)
+      # return 'hi'
+      # turn scores into job pages with ratings
+      results = joblistFromSimilarities(similardocs, 20, useremail)
+      return json.jsonify({'results': results})
+    else:
+      return 'job '+jobid+' not found in our corpus. maybe the corpus is out of date.'
+  else:
+    return "pass in a jobid with ?j="
+
 @app.route("/ldasimilar")
 @cross_origin()
 def ldasimilar():
@@ -106,34 +170,16 @@ def ldasimilar():
   jobid = request.args.get('j')
   useremail = request.args.get('user')
   if (jobid != None):
-    try:
+    if (jobid in jobid2id):
       # convert jobid into corpus rownumber
       jobnum = jobid2id[jobid]
       # grab similarity scores from our lda index
       similardocs = ldaindex[ldamodel[corpus[jobnum]]]
-      # sort by score and limit to the 20 best matches
-      nearest20 = sorted([[i,x] for i,x in enumerate(similardocs)], key=lambda a: -a[1])[:20]
-      # translate the row numbers into jobids
-      jobidpairs = [[id2jobid[a[0]], a[1]] for a in nearest20] #if id2jobid[a[0]] != jobid]
-      # grab database entries for the row numbers
-      jobslistwithdata = {row['jobid']: row for row in db.joblistings.find({'jobid': {'$in': [a[0] for a in jobidpairs]}})}
-      # remove _id column from results because it messes up the json
-      for key in jobslistwithdata:
-        del jobslistwithdata[key]['_id']
-      # look up reviews based on passed in email
-      jobreviewdict = {}
-      if (useremail != None):
-        jobreviewlist = list(db.reviews.find({'useremail': useremail, 'jobid': {'$in': [a[0] for a in jobidpairs]}}))
-        jobreviewdict = {a['jobid']: a['rating'] for a in jobreviewlist}
-      # combine similarity scores, reviews, and jobdetails in finallist
-      finallist = []
-      for pair in jobidpairs:
-        if (pair[0] not in jobreviewdict):
-          jobreviewdict[pair[0]] = -1
-        finallist.append({'job': jobslistwithdata[pair[0]], 'similarity': str(pair[1]), 'rating': jobreviewdict[pair[0]]})
-      return json.jsonify({'results': finallist})
-    except KeyError:
-      return 'no job found in our similarity index'
+      # turn scores into job pages with ratings
+      results = joblistFromSimilarities(similardocs, 20, useremail)
+      return json.jsonify({'results': results})
+    else:
+      return 'job '+jobid+' not found in our corpus. maybe the corpus is out of date.'
   else:
     return "pass in a jobid with ?j="
 
@@ -154,6 +200,12 @@ def main():
   </form>
   <form method='POST' action='ldaindex'>
     <button>create lda index</button>
+  </form>
+  <form method='POST' action='bowindex'>
+    <button>create bow index</button>
+  </form>
+  <form method='POST' action='lsimodel'>
+    <button>create lsi model</button>
   </form>
   </body></html>"""
 
