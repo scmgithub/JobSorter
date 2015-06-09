@@ -97,36 +97,30 @@ def ratejobs(jobs,useremail):
   reviews = list(db.reviews.find({'useremail': useremail}))
   labels = []
   reviewrowids = []
-  # TODO check for 0 reviews
-  for review in reviews:
-    if review['jobid'] in jobid2id:
-      labels.append(float(review['rating']))
-      reviewrowids.append(jobid2id[review['jobid']])
+  # check for 0 reviews
+  if len(reviews) == 0:
+    return {jobid:-1 for jobid in jobs}
+  else:
+    for review in reviews:
+      if review['jobid'] in jobid2id:
+        labels.append(float(review['rating']))
+        reviewrowids.append(jobid2id[review['jobid']])
 
-  samples = [lsimodel[tfidf[corpus[rowid]]] for rowid in reviewrowids]
-  svmmodel = svm.SVR()
+    samples = [lsimodel[tfidf[corpus[rowid]]] for rowid in reviewrowids]
+    svmmodel = svm.SVR(kernel='rbf', C=1e3, gamma=0.01)
 
-  # print('email')
-  # print(useremail)
-  # print('reviews')
-  # print(reviews)
-  # print('samples')
-  # print(samples)
-  # print('parsed samples')
-  # print matutils.sparse2full(sample,300)
+    # train our svm with the labeled data
+    svmmodel.fit([matutils.sparse2full(sample,300) for sample in samples],labels)
 
-  # train our svm with the labeled data
-  svmmodel.fit([matutils.sparse2full(sample,300) for sample in samples],labels)
+    # now run the svm model over the jobs to find a rating for each job
+    airatings = {}
+    for jobid in jobs:
+      if jobid in jobid2id:
+        airatings[jobid] = (svmmodel.predict([matutils.sparse2full(lsimodel[tfidf[corpus[jobid2id[jobid]]]],300)])).item(0)
+      else:
+        airatings[jobid] = -1
 
-  # now run the svm model over the jobs to find a rating for each job
-  airatings = {}
-  for jobid in jobs:
-    if jobid in jobid2id:
-      airatings[jobid] = (svmmodel.predict([matutils.sparse2full(lsimodel[tfidf[corpus[jobid2id[jobid]]]],300)])).item(0)
-    else:
-      airatings[jobid] = -1
-
-  return airatings
+    return airatings
 
 
 def preprocessjob(job):
