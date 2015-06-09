@@ -60,7 +60,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
       var jobid = $location.search().ldasimilar;
       $http({method: "GET", url: "http://localhost:5000/ldasimilar", params: {j: jobid, user: $window.sessionStorage.email}})
         .success(function(data) {
-          console.log(data);
+          $scope.airatings = data.results.map(function(row) {return row.airating;});
           $scope.ratings = data.results.map(function(row) {return row.rating;});
           $scope.similarities = data.results.map(function(row) {return row.similarity;});
           $scope.rows = data.results.map(function(row) {return row.job;});
@@ -73,7 +73,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
       var jobid = $location.search().bowsimilar;
       $http({method: "GET", url: "http://localhost:5000/bowsimilar", params: {j: jobid, user: $window.sessionStorage.email}})
         .success(function(data) {
-          console.log(data);
+          $scope.airatings = data.results.map(function(row) {return row.airating;});
           $scope.ratings = data.results.map(function(row) {return row.rating;});
           $scope.similarities = data.results.map(function(row) {return row.similarity;});
           $scope.rows = data.results.map(function(row) {return row.job;});
