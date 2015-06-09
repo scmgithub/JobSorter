@@ -46,11 +46,13 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     // run query and fill out results page
     if (typeof $location.search().query !== 'undefined') {
       var query = $location.search().query;
-      $http({method: "GET", url: "/api/jobsearch", params: {q: query}})
+      $http({method: "GET", url: "http://localhost:5000/mongosearch", params: {q: query, user: $window.sessionStorage.email}})
         .success(function(data) {
           // set initial ratings for all the joblistings. -1 means unrated
-          $scope.ratings = data.map(function(row) {return row.rating;});
-          $scope.rows = data;
+          $scope.airatings = data.results.map(function(row) {return row.airating;});
+          $scope.ratings = data.results.map(function(row) {return row.rating;});
+          // $scope.similarities = data.results.map(function(row) {return row.similarity;});
+          $scope.rows = data.results.map(function(row) {return row.job;});
         })
         .error(function(err) {
           alert(err);

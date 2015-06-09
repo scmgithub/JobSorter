@@ -25,7 +25,7 @@
 <ul style='clear: both'>
   <li ng-repeat="row in rows">
     <h4>
-    {{airatings[$index] | number:4}} {{similarities[$index] | number:2}} <span class="star-rating" star-rating rating-value="ratings[$index]" data-max="5" on-rating-selected="rateFunction($index, rating)"></span>
+    {{airatings[$index] | number:2}} {{similarities[$index] | number:2}} <span class="star-rating" star-rating rating-value="ratings[$index]" data-max="5" on-rating-selected="rateFunction($index, rating)"></span>
     {{row.title}}<button class="btn btn-default" style="margin-left: 10px;" ng-click="findSimilarLDA($index)">Find similar (LDA)</button><button class="btn btn-default" style="margin-left: 10px;" ng-click="findSimilarBOW($index)">Find similar (BoW)</button>
     </h4>
     <p ng-click="showDetail($index)">{{row.snippet}}</p>

@@ -64,32 +64,62 @@ try:
 except:
   print("trouble loading jobidhash. maybe re-preprocess")
 
-def joblistFromSimilarities(simscores, numdocs, useremail):
-  global id2jobid
-  # sort by score and limit to numdocs
-  nearest = sorted([[i,x] for i,x in enumerate(simscores)], key=lambda a: -a[1])[:20]
-  # translate the row numbers into jobids
-  jobidpairs = [[id2jobid[a[0]], a[1]] for a in nearest] #if id2jobid[a[0]] != jobid]
+def prepareJobsFromJobids(jobids,useremail):
   # grab database entries for the row numbers
-  jobslistwithdata = {row['jobid']: row for row in db.joblistings.find({'jobid': {'$in': [a[0] for a in jobidpairs]}})}
+  jobslistwithdata = {row['jobid']: row for row in db.joblistings.find({'jobid': {'$in': jobids}})}
   # remove _id column from results because it messes up the json
   for key in jobslistwithdata:
     del jobslistwithdata[key]['_id']
   # look up reviews based on passed in email
   jobreviewdict = {}
   if (useremail != None):
-    jobreviewlist = list(db.reviews.find({'useremail': useremail, 'jobid': {'$in': [a[0] for a in jobidpairs]}}))
+    jobreviewlist = list(db.reviews.find({'useremail': useremail, 'jobid': {'$in': jobids}}))
     jobreviewdict = {a['jobid']: a['rating'] for a in jobreviewlist}
-    airatings = ratejobs([a[0] for a in jobidpairs], useremail)
+    airatings = ratejobs(jobids, useremail)
   else:
-    airatings = {pair[0]:-1 for pair in jobidpairs}
+    airatings = {jobid:-1 for jobid in jobids}
   # combine similarity scores, reviews, aireviews, and jobdetails in finallist
   finallist = []
-  for pair in jobidpairs:
-    if (pair[0] not in jobreviewdict):
-      jobreviewdict[pair[0]] = -1
-    finallist.append({'job': jobslistwithdata[pair[0]], 'similarity': str(pair[1]), 'rating': jobreviewdict[pair[0]], 'airating': airatings[pair[0]]})
+  for jobid in jobids:
+    if (jobid not in jobreviewdict):
+      jobreviewdict[jobid] = -1
+    finallist.append({'job': jobslistwithdata[jobid], 'rating': jobreviewdict[jobid], 'airating': airatings[jobid]})
   return finallist
+
+
+def joblistFromSimilarities(simscores, numdocs, useremail):
+  global id2jobid
+  # sort by score and limit to numdocs
+  nearest = sorted([[i,x] for i,x in enumerate(simscores)], key=lambda a: -a[1])[:20]
+  # translate the row numbers into jobids
+  jobidpairs = [[id2jobid[a[0]], a[1]] for a in nearest] #if id2jobid[a[0]] != jobid]
+  # prepare job list from jobids
+  results = prepareJobsFromJobids([pair[0] for pair in jobidpairs], useremail)
+  for i in range(len(results)):
+    results[i]['similarity'] = str(jobidpairs[i][1])
+  return results
+
+
+  # # grab database entries for the row numbers
+  # jobslistwithdata = {row['jobid']: row for row in db.joblistings.find({'jobid': {'$in': [a[0] for a in jobidpairs]}})}
+  # # remove _id column from results because it messes up the json
+  # for key in jobslistwithdata:
+  #   del jobslistwithdata[key]['_id']
+  # # look up reviews based on passed in email
+  # jobreviewdict = {}
+  # if (useremail != None):
+  #   jobreviewlist = list(db.reviews.find({'useremail': useremail, 'jobid': {'$in': [a[0] for a in jobidpairs]}}))
+  #   jobreviewdict = {a['jobid']: a['rating'] for a in jobreviewlist}
+  #   airatings = ratejobs([a[0] for a in jobidpairs], useremail)
+  # else:
+  #   airatings = {pair[0]:-1 for pair in jobidpairs}
+  # # combine similarity scores, reviews, aireviews, and jobdetails in finallist
+  # finallist = []
+  # for pair in jobidpairs:
+  #   if (pair[0] not in jobreviewdict):
+  #     jobreviewdict[pair[0]] = -1
+  #   finallist.append({'job': jobslistwithdata[pair[0]], 'similarity': str(pair[1]), 'rating': jobreviewdict[pair[0]], 'airating': airatings[pair[0]]})
+  # return finallist
 
 # returns dictionary of jobids->airatings
 def ratejobs(jobs,useremail):
@@ -107,6 +137,7 @@ def ratejobs(jobs,useremail):
         reviewrowids.append(jobid2id[review['jobid']])
 
     samples = [lsimodel[tfidf[corpus[rowid]]] for rowid in reviewrowids]
+    # can be linear, rbf with gamma, or poly with degree
     svmmodel = svm.SVR(kernel='rbf', C=1e3, gamma=0.01)
 
     # train our svm with the labeled data
@@ -257,6 +288,22 @@ def ldasimilar():
       return 'job '+jobid+' not found in our corpus. maybe the corpus is out of date.'
   else:
     return "pass in a jobid with ?j="
+
+@app.route("/mongosearch")
+@cross_origin()
+def mongosearch():
+  query = request.args.get('q')
+  useremail = request.args.get('user')
+  if query:
+    jobs = list(db.joblistings.find({ '$text': { '$search': query } }, { 'score': { '$meta': "textScore" }, 'jobid':1 }).sort( [( 'score', { '$meta': "textScore" })] ).limit(10))
+  else:
+    jobs = list(db.joblistings.find({},{'jobid':1}).limit(10))
+  jobids = [job['jobid'] for job in jobs]
+  # print useremail
+  results = prepareJobsFromJobids(jobids, useremail)
+  return json.jsonify({'results': results})
+  # return 'hi'
+  #cursor = db.collection('joblistings').find( { $text: { $search: query } }, { score: { $meta: "textScore" } }).sort( { score: { $meta: "textScore" } } ).limit(10);
 
 @app.route("/main")
 def main():
