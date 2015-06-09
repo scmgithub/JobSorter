@@ -1,12 +1,12 @@
 angular.module('seeker',['ngRoute','ngSanitize'])
-  .controller('nav', function($location, $rootScope, $scope, $window, currentUser) {
+  .controller('nav', function($location, $rootScope, $scope, $window) {
     $rootScope.$on("$locationChangeStart", function(event,next,current) {
       if (typeof $window.sessionStorage.token === "undefined" && next.indexOf("#/app/") > -1) {
         event.preventDefault();
       }
     });
     $scope.logout = function() {
-      currentUser.email='';
+      delete $window.sessionStorage.email;
       delete $window.sessionStorage.token;
     };
   })
@@ -18,7 +18,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     };
   })
 
-  .controller('search', function($scope, $http, $location, currentUser) {
+  .controller('search', function($scope, $http, $location, $window) {
 
     // make sure modal gets inited properly
     $scope.modalindex = 0;
@@ -58,7 +58,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     // run lda similarity query and fill out results
     } else if (typeof $location.search().ldasimilar !== 'undefined') {
       var jobid = $location.search().ldasimilar;
-      $http({method: "GET", url: "http://localhost:5000/ldasimilar", params: {j: jobid, user: currentUser.email}})
+      $http({method: "GET", url: "http://localhost:5000/ldasimilar", params: {j: jobid, user: $window.sessionStorage.email}})
         .success(function(data) {
           console.log(data);
           $scope.ratings = data.results.map(function(row) {return row.rating;});
@@ -71,7 +71,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     // run bow similarity query and fill out results
     } else if (typeof $location.search().bowsimilar !== 'undefined') {
       var jobid = $location.search().bowsimilar;
-      $http({method: "GET", url: "http://localhost:5000/bowsimilar", params: {j: jobid, user: currentUser.email}})
+      $http({method: "GET", url: "http://localhost:5000/bowsimilar", params: {j: jobid, user: $window.sessionStorage.email}})
         .success(function(data) {
           console.log(data);
           $scope.ratings = data.results.map(function(row) {return row.rating;});
@@ -95,21 +95,22 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     };
   })
 
-  .controller('login', function($scope,$http,$window,$location,currentUser) {
+  .controller('login', function($scope,$http,$window,$location) {
     $scope.submit = function() {
       $http.post("/login", {user: $scope.user})
         .success(function(data) {
-          currentUser.email = $scope.user.email;
+          $window.sessionStorage.email = $scope.user.email;
           $window.sessionStorage.token = data.token;
           $location.path('app/home');
         })
         .error(function(err) {
           delete $window.sessionStorage.token;
-          alert(err);
+          delete $window.sessionStorage.email;
+          $scope.message = err;
         });
     }
   })
-  .controller('signup', function($scope,$http,$window,$location,currentUser) {
+  .controller('signup', function($scope,$http,$window,$location) {
     $scope.user = {};
     var bothpasswordsupdated = false;
     $scope.submit = function() {
@@ -122,11 +123,12 @@ angular.module('seeker',['ngRoute','ngSanitize'])
           .success(function(res,status) {
             $http.post("/login", {user: $scope.user})
               .success(function(data) {
-                currentUser.email = $scope.user.email;
+                $window.sessionStorage.email = $scope.user.email;
                 $window.sessionStorage.token = data.token;
                 $location.path('app/home');
               })
               .error(function(err) {
+                delete $window.sessionStorage.email;
                 delete $window.sessionStorage.token;
                 alert(err);
               });
@@ -156,11 +158,6 @@ angular.module('seeker',['ngRoute','ngSanitize'])
         return response || $q.when(response);
       }
     };
-  })
-
-  .factory('currentUser', function() {
-    var user = {};
-    return user;
   })
 
   .filter('newlines_as_br', function() {
