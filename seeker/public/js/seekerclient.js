@@ -1,11 +1,12 @@
 angular.module('seeker',['ngRoute','ngSanitize'])
-  .controller('nav', function($location, $rootScope, $scope, $window) {
+  .controller('nav', function($location, $rootScope, $scope, $window, currentUser) {
     $rootScope.$on("$locationChangeStart", function(event,next,current) {
       if (typeof $window.sessionStorage.token === "undefined" && next.indexOf("#/app/") > -1) {
         event.preventDefault();
       }
     });
     $scope.logout = function() {
+      currentUser.email='';
       delete $window.sessionStorage.token;
     };
   })
