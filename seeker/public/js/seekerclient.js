@@ -113,7 +113,9 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     $scope.user = {};
     var bothpasswordsupdated = false;
     $scope.submit = function() {
-      if ($scope.user.password !== $scope.user.confirmpassword) {
+      if (!$scope.user.email || !$scope.user.password || !$scope.user.confirmpassword) {
+        alert("email, password, and password confirmation are required");
+      } else if ($scope.user.password !== $scope.user.confirmpassword) {
         alert("passwords don't match");
       } else {
         $http.post("/signup",{user: $scope.user})
