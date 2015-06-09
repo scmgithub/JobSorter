@@ -21,4 +21,6 @@ ul.rating {
   color: #21568b;
 }
 
-.rating .filled
+ul {
+  list-style-type: none;
+}
