@@ -21,6 +21,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
   .controller('search', function($scope, $http, $location, $window) {
 
     // make sure modal gets inited properly
+    $scope.mapurl='';
     $scope.modalindex = 0;
     $scope.ratings = [-1];
 
