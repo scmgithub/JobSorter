@@ -5,7 +5,7 @@ import unicodedata
 from flask import Flask, request, json
 from flask.ext.cors import cross_origin
 from pymongo import MongoClient
-from gensim import corpora, models, similarities, utils
+from gensim import corpora, models, similarities, utils, matutils
 from sklearn import svm
 app = Flask(__name__)
 app.debug = True
@@ -26,7 +26,7 @@ try:
   ldamodel = models.LdaMulticore.load('data/ldamodel')
 except:
   ldamodel = ""
-print(ldamodel)
+# print(ldamodel)
 try:
   ldaindex = similarities.MatrixSimilarity.load('data/ldaindex')
 except:
@@ -80,14 +80,53 @@ def joblistFromSimilarities(simscores, numdocs, useremail):
   if (useremail != None):
     jobreviewlist = list(db.reviews.find({'useremail': useremail, 'jobid': {'$in': [a[0] for a in jobidpairs]}}))
     jobreviewdict = {a['jobid']: a['rating'] for a in jobreviewlist}
-  # combine similarity scores, reviews, and jobdetails in finallist
+    airatings = ratejobs([a[0] for a in jobidpairs], useremail)
+  else:
+    airatings = {pair[0]:-1 for pair in jobidpairs}
+  # combine similarity scores, reviews, aireviews, and jobdetails in finallist
   finallist = []
   for pair in jobidpairs:
     if (pair[0] not in jobreviewdict):
       jobreviewdict[pair[0]] = -1
-    finallist.append({'job': jobslistwithdata[pair[0]], 'similarity': str(pair[1]), 'rating': jobreviewdict[pair[0]]})
+    finallist.append({'job': jobslistwithdata[pair[0]], 'similarity': str(pair[1]), 'rating': jobreviewdict[pair[0]], 'airating': airatings[pair[0]]})
   return finallist
 
+# returns dictionary of jobids->airatings
+def ratejobs(jobs,useremail):
+  global dict,corpus,tfidf,lsimodel,jobid2id,id2jobid
+  reviews = list(db.reviews.find({'useremail': useremail}))
+  labels = []
+  reviewrowids = []
+  # TODO check for 0 reviews
+  for review in reviews:
+    if review['jobid'] in jobid2id:
+      labels.append(float(review['rating']))
+      reviewrowids.append(jobid2id[review['jobid']])
+
+  samples = [lsimodel[tfidf[corpus[rowid]]] for rowid in reviewrowids]
+  svmmodel = svm.SVR()
+
+  # print('email')
+  # print(useremail)
+  # print('reviews')
+  # print(reviews)
+  # print('samples')
+  # print(samples)
+  # print('parsed samples')
+  # print matutils.sparse2full(sample,300)
+
+  # train our svm with the labeled data
+  svmmodel.fit([matutils.sparse2full(sample,300) for sample in samples],labels)
+
+  # now run the svm model over the jobs to find a rating for each job
+  airatings = {}
+  for jobid in jobs:
+    if jobid in jobid2id:
+      airatings[jobid] = (svmmodel.predict([matutils.sparse2full(lsimodel[tfidf[corpus[jobid2id[jobid]]]],300)])).item(0)
+    else:
+      airatings[jobid] = -1
+
+  return airatings
 
 
 def preprocessjob(job):
@@ -166,27 +205,6 @@ def lsiindexcreate():
   lsiindex = similarities.MatrixSimilarity(lsimodel[tfidf[corpus]])
   lsiindex.save('data/lsiindex')
   return 'lsi index created'
-
-@app.route("/toprated")
-def toprated():
-  global dict,corpus,tfidf,lsimodel,jobid2id,id2jobid
-  useremail = request.args.get('user')
-  reviews = list(db.reviews.find({'useremail': useremail}))
-  labels = []
-  reviewrowids = []
-  for review in reviews:
-    if review['jobid'] in jobid2id:
-      labels.append(float(review['rating']))
-      reviewrowids.append(jobid2id[review['jobid']])
-
-  samples = [tfidf[corpus[rowid]] for rowid in reviewrowids]
-  svmmodel = svm.SVR()
-  # svmmodel.fit(samples,labels)
-  # predictions = svmmodel.predict(tfidf[corpus])
-  # print predictions
-  return 'predicted stuff'
-
-
 
 @app.route("/lsisimilar")
 @cross_origin()
