@@ -47,7 +47,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     // run query and fill out results page
     if (typeof $location.search().query !== 'undefined') {
       var query = $location.search().query;
-      $http({method: "GET", url: "http://localhost:5000/mongosearch", params: {q: query, user: $window.sessionStorage.email}})
+      $http({method: "GET", url: "http://"+location.hostname+":5000/mongosearch", params: {q: query, user: $window.sessionStorage.email}})
         .success(function(data) {
           // set initial ratings for all the joblistings. -1 means unrated
           $scope.airatings = data.results.map(function(row) {return row.airating;});
@@ -61,7 +61,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     // run lda similarity query and fill out results
     } else if (typeof $location.search().ldasimilar !== 'undefined') {
       var jobid = $location.search().ldasimilar;
-      $http({method: "GET", url: "http://localhost:5000/ldasimilar", params: {j: jobid, user: $window.sessionStorage.email}})
+      $http({method: "GET", url: "http://"+location.hostname+":5000/ldasimilar", params: {j: jobid, user: $window.sessionStorage.email}})
         .success(function(data) {
           $scope.airatings = data.results.map(function(row) {return row.airating;});
           $scope.ratings = data.results.map(function(row) {return row.rating;});
@@ -74,7 +74,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     // run bow similarity query and fill out results
     } else if (typeof $location.search().bowsimilar !== 'undefined') {
       var jobid = $location.search().bowsimilar;
-      $http({method: "GET", url: "http://localhost:5000/bowsimilar", params: {j: jobid, user: $window.sessionStorage.email}})
+      $http({method: "GET", url: "http://"+location.hostname+":5000/bowsimilar", params: {j: jobid, user: $window.sessionStorage.email}})
         .success(function(data) {
           $scope.airatings = data.results.map(function(row) {return row.airating;});
           $scope.ratings = data.results.map(function(row) {return row.rating;});

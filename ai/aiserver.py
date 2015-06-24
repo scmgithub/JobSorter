@@ -206,7 +206,7 @@ def lsimodelcreate():
 @app.route("/ldamodel", methods=['POST'])
 def ldamodelcreate():
   global dict,corpus,ldamodel
-  ldamodel = models.LdaMulticore(corpus, num_topics=300, id2word=dict, workers=3, passes=30, iterations=100)
+  ldamodel = models.LdaMulticore(corpus, num_topics=300, id2word=dict, workers=12, passes=30, iterations=100)
   ldamodel.save('data/ldamodel')
   return 'lda model created'
 
