@@ -169,6 +169,32 @@ angular.module('seeker',['ngRoute','ngSanitize'])
       else return null;
     }
   })
+  .directive('morestars',
+    function() {
+      return {
+        restrict : 'A',
+        template : '<div class="newstars" style="width:{{ghostval ? 18*ghostval : 18*rating}}px;height:18px;background: blue;position:absolute;top:0;left:0;z-index:2;pointer-events: none;"></div><div class="emptystars" style="width:{{18*5}}px;height:18px;background: yellow;position:absolute;top:0;left:0;z-index:1" ng-click="toggle($event)" ng-mousemove="ghost($event)" ng-mouseleave="noghost()"></div>',
+        scope : {
+          rating : '=',
+          ghostval : '=',
+          onSelected : '&'
+        },
+        link : function(scope, elem, attrs) {
+          scope.toggle = function(event) {
+            scope.rating = 1+Math.floor(event.offsetX/18.1);
+            // console.log('toggle',event);
+          };
+          scope.ghost = function(event) {
+            scope.ghostval = 1+Math.floor(event.offsetX/18.1);
+          };
+          scope.noghost = function() {
+            scope.ghostval = 0;
+          };
+        }
+      }
+    }
+  )
+
   .directive('starRating',
     function() {
       return {
@@ -179,35 +205,36 @@ angular.module('seeker',['ngRoute','ngSanitize'])
            + ' </li>'
            + '</ul>',
         scope : {
-        ratingValue : '=',
-        max : '=',
-        onRatingSelected : '&'
-      },
-      link : function(scope, elem, attrs) {
-        var updateStars = function() {
-          scope.stars = [];
-          for ( var i = 0; i < scope.max; i++) {
-            scope.stars.push({
-              filled : i < scope.ratingValue
+          ratingValue : '=',
+          max : '=',
+          onRatingSelected : '&'
+        },
+        link : function(scope, elem, attrs) {
+          var updateStars = function() {
+            scope.stars = [];
+            for ( var i = 0; i < scope.max; i++) {
+              scope.stars.push({
+                filled : i < scope.ratingValue
+              });
+            }
+          };
+       
+          scope.toggle = function(index) {
+            scope.ratingValue = index + 1;
+            scope.onRatingSelected({
+             rating : index + 1
             });
-          }
-        };
-     
-        scope.toggle = function(index) {
-          scope.ratingValue = index + 1;
-          scope.onRatingSelected({
-           rating : index + 1
+          };
+          
+          scope.$watch('ratingValue', function(oldVal, newVal) {
+            if (newVal) {
+              updateStars();
+            }
           });
-        };
-        
-        scope.$watch('ratingValue', function(oldVal, newVal) {
-          if (newVal) {
-            updateStars();
-          }
-        });
-      }
-    };
-  })
+        }
+      };
+    }
+  )
 
   .config(function($routeProvider, $httpProvider) {
     $httpProvider.interceptors.push('authInterceptor');
