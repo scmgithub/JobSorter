@@ -1,0 +1,156 @@
+2015-06-24 11:04:09,451 : INFO : loading Dictionary object from data/dict
+2015-06-24 11:04:09,494 : INFO : loaded corpus index from data/corpus.index
+2015-06-24 11:04:09,494 : INFO : initializing corpus reader from data/corpus
+2015-06-24 11:04:09,495 : INFO : accepted corpus with 12171 documents, 17730 features, 2134095 non-zero entries
+2015-06-24 11:04:09,495 : INFO : loading LdaMulticore object from data/ldamodel
+2015-06-24 11:04:10,158 : INFO : setting ignored attribute state to None
+2015-06-24 11:04:10,158 : INFO : setting ignored attribute dispatcher to None
+2015-06-24 11:04:10,158 : INFO : loading LdaMulticore object from data/ldamodel.state
+2015-06-24 11:04:14,364 : INFO : loading MatrixSimilarity object from data/ldaindex
+2015-06-24 11:04:14,561 : INFO : loading MatrixSimilarity object from data/bowindex
+2015-06-24 11:04:14,603 : INFO : loading index from data/bowindex.index.npy with mmap=None
+2015-06-24 11:04:47,390 : INFO : loading TfidfModel object from data/tfidf
+2015-06-24 11:04:47,402 : INFO : loading LsiModel object from data/lsimodel
+2015-06-24 11:04:47,422 : INFO : setting ignored attribute dispatcher to None
+2015-06-24 11:04:47,422 : INFO : setting ignored attribute projection to None
+2015-06-24 11:04:47,423 : INFO : loading LsiModel object from data/lsimodel.projection
+2015-06-24 11:04:48,137 : INFO :  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+2015-06-24 11:04:48,144 : INFO :  * Restarting with stat
+2015-06-24 11:04:48,718 : INFO : loading Dictionary object from data/dict
+2015-06-24 11:04:48,726 : INFO : loaded corpus index from data/corpus.index
+2015-06-24 11:04:48,726 : INFO : initializing corpus reader from data/corpus
+2015-06-24 11:04:48,726 : INFO : accepted corpus with 12171 documents, 17730 features, 2134095 non-zero entries
+2015-06-24 11:04:48,726 : INFO : loading LdaMulticore object from data/ldamodel
+2015-06-24 11:04:48,757 : INFO : setting ignored attribute state to None
+2015-06-24 11:04:48,757 : INFO : setting ignored attribute dispatcher to None
+2015-06-24 11:04:48,757 : INFO : loading LdaMulticore object from data/ldamodel.state
+2015-06-24 11:04:48,780 : INFO : loading MatrixSimilarity object from data/ldaindex
+2015-06-24 11:04:48,782 : INFO : loading MatrixSimilarity object from data/bowindex
+2015-06-24 11:04:48,782 : INFO : loading index from data/bowindex.index.npy with mmap=None
+2015-06-24 11:04:48,995 : INFO : loading TfidfModel object from data/tfidf
+2015-06-24 11:04:48,998 : INFO : loading LsiModel object from data/lsimodel
+2015-06-24 11:04:49,007 : INFO : setting ignored attribute dispatcher to None
+2015-06-24 11:04:49,007 : INFO : setting ignored attribute projection to None
+2015-06-24 11:04:49,007 : INFO : loading LsiModel object from data/lsimodel.projection
+2015-06-24 11:04:57,631 : INFO : 127.0.0.1 - - [24/Jun/2015 11:04:57] "GET / HTTP/1.1" 404 -
+2015-06-24 11:04:57,834 : INFO : 127.0.0.1 - - [24/Jun/2015 11:04:57] "GET /favicon.ico HTTP/1.1" 404 -
+2015-06-24 11:05:02,136 : INFO : 127.0.0.1 - - [24/Jun/2015 11:05:02] "GET /main HTTP/1.1" 200 -
+2015-06-24 11:05:11,763 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:05:11,764 : INFO : 127.0.0.1 - - [24/Jun/2015 11:05:11] "OPTIONS /mongosearch?q=&user=e HTTP/1.1" 200 -
+2015-06-24 11:05:12,654 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:05:12,655 : INFO : 127.0.0.1 - - [24/Jun/2015 11:05:12] "GET /mongosearch?q=&user=e HTTP/1.1" 200 -
+2015-06-24 11:05:40,599 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:05:40,600 : INFO : 127.0.0.1 - - [24/Jun/2015 11:05:40] "OPTIONS /mongosearch?q=developer&user=e HTTP/1.1" 200 -
+2015-06-24 11:05:41,191 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:05:41,192 : INFO : 127.0.0.1 - - [24/Jun/2015 11:05:41] "GET /mongosearch?q=developer&user=e HTTP/1.1" 200 -
+2015-06-24 11:05:52,835 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:05:52,835 : INFO : 127.0.0.1 - - [24/Jun/2015 11:05:52] "OPTIONS /bowsimilar?j=283e386737324db8&user=e HTTP/1.1" 200 -
+2015-06-24 11:05:53,184 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:05:53,184 : INFO : 127.0.0.1 - - [24/Jun/2015 11:05:53] "GET /bowsimilar?j=283e386737324db8&user=e HTTP/1.1" 200 -
+2015-06-24 11:06:02,875 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:06:02,875 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:02] "OPTIONS /ldasimilar?j=283e386737324db8&user=e HTTP/1.1" 200 -
+2015-06-24 11:06:03,076 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:03] "GET /ldasimilar?j=283e386737324db8&user=e HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1836, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1820, in wsgi_app
+    response = self.make_response(self.handle_exception(e))
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1403, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/_compat.py", line 33, in reraise
+    raise value
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1817, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1477, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1381, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/_compat.py", line 33, in reraise
+    raise value
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1475, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1461, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask_cors/decorator.py", line 120, in wrapped_function
+    resp = make_response(f(*args, **kwargs))
+  File "/home/evan/wdi/JobSorter/ai/aiserver.py", line 283, in ldasimilar
+    similardocs = ldaindex[ldamodel[corpus[jobnum]]]
+TypeError: string indices must be integers
+2015-06-24 11:06:21,044 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:06:21,045 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:21] "OPTIONS /mongosearch?q=&user=e HTTP/1.1" 200 -
+2015-06-24 11:06:21,086 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:06:21,086 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:21] "GET /mongosearch?q=&user=e HTTP/1.1" 200 -
+2015-06-24 11:06:28,218 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:06:28,218 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:28] "OPTIONS /bowsimilar?j=2a19938aab958785&user=e HTTP/1.1" 200 -
+2015-06-24 11:06:28,544 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:06:28,545 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:28] "GET /bowsimilar?j=2a19938aab958785&user=e HTTP/1.1" 200 -
+2015-06-24 11:06:38,003 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:06:38,003 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:38] "OPTIONS /ldasimilar?j=42b81ac984f3d66a&user=e HTTP/1.1" 200 -
+2015-06-24 11:06:38,026 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:38] "GET /ldasimilar?j=42b81ac984f3d66a&user=e HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1836, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1820, in wsgi_app
+    response = self.make_response(self.handle_exception(e))
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1403, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/_compat.py", line 33, in reraise
+    raise value
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1817, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1477, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1381, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/_compat.py", line 33, in reraise
+    raise value
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1475, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask/app.py", line 1461, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/evan/anaconda3/lib/python3.4/site-packages/flask_cors/decorator.py", line 120, in wrapped_function
+    resp = make_response(f(*args, **kwargs))
+  File "/home/evan/wdi/JobSorter/ai/aiserver.py", line 283, in ldasimilar
+    similardocs = ldaindex[ldamodel[corpus[jobnum]]]
+TypeError: string indices must be integers
+2015-06-24 11:06:41,351 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:06:41,351 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:41] "OPTIONS /mongosearch?q=&user=e HTTP/1.1" 200 -
+2015-06-24 11:06:41,395 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:06:41,395 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:41] "GET /mongosearch?q=&user=e HTTP/1.1" 200 -
+2015-06-24 11:06:44,569 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:06:44,570 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:44] "OPTIONS /bowsimilar?j=2a19938aab958785&user=e HTTP/1.1" 200 -
+2015-06-24 11:06:44,783 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:06:44,783 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:44] "GET /bowsimilar?j=2a19938aab958785&user=e HTTP/1.1" 200 -
+2015-06-24 11:06:52,383 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:06:52,384 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:52] "OPTIONS /bowsimilar?j=d16c144f8ddfa31a&user=e HTTP/1.1" 200 -
+2015-06-24 11:06:52,698 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:06:52,698 : INFO : 127.0.0.1 - - [24/Jun/2015 11:06:52] "GET /bowsimilar?j=d16c144f8ddfa31a&user=e HTTP/1.1" 200 -
+2015-06-24 11:07:23,259 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:07:23,259 : INFO : 127.0.0.1 - - [24/Jun/2015 11:07:23] "OPTIONS /bowsimilar?j=71aa348aea865272&user=e HTTP/1.1" 200 -
+2015-06-24 11:07:23,587 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:07:23,587 : INFO : 127.0.0.1 - - [24/Jun/2015 11:07:23] "GET /bowsimilar?j=71aa348aea865272&user=e HTTP/1.1" 200 -
+2015-06-24 11:07:47,665 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:07:47,665 : INFO : 127.0.0.1 - - [24/Jun/2015 11:07:47] "OPTIONS /bowsimilar?j=743ba61c6f425733&user=e HTTP/1.1" 200 -
+2015-06-24 11:07:47,959 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:07:47,959 : INFO : 127.0.0.1 - - [24/Jun/2015 11:07:47] "GET /bowsimilar?j=743ba61c6f425733&user=e HTTP/1.1" 200 -
+2015-06-24 11:08:23,105 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:08:23,106 : INFO : 127.0.0.1 - - [24/Jun/2015 11:08:23] "OPTIONS /mongosearch?q=developer&user=e HTTP/1.1" 200 -
+2015-06-24 11:08:23,175 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:08:23,176 : INFO : 127.0.0.1 - - [24/Jun/2015 11:08:23] "GET /mongosearch?q=developer&user=e HTTP/1.1" 200 -
+2015-06-24 11:11:28,291 : INFO : 127.0.0.1 - - [24/Jun/2015 11:11:28] "GET /main HTTP/1.1" 200 -
+2015-06-24 11:11:28,375 : INFO : 127.0.0.1 - - [24/Jun/2015 11:11:28] "GET /favicon.ico HTTP/1.1" 404 -
+2015-06-24 11:12:58,107 : INFO : creating matrix for 12171 documents and 300 features
+2015-06-24 11:12:58,455 : INFO : saving MatrixSimilarity object under data/ldaindex, separately None
+2015-06-24 11:12:58,510 : INFO : 127.0.0.1 - - [24/Jun/2015 11:12:58] "POST /ldaindex HTTP/1.1" 200 -
+2015-06-24 11:13:13,942 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:13:13,942 : INFO : 127.0.0.1 - - [24/Jun/2015 11:13:13] "OPTIONS /mongosearch?q=&user=e HTTP/1.1" 200 -
+2015-06-24 11:13:14,012 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:13:14,012 : INFO : 127.0.0.1 - - [24/Jun/2015 11:13:14] "GET /mongosearch?q=&user=e HTTP/1.1" 200 -
+2015-06-24 11:13:17,165 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:13:17,166 : INFO : 127.0.0.1 - - [24/Jun/2015 11:13:17] "OPTIONS /ldasimilar?j=2a19938aab958785&user=e HTTP/1.1" 200 -
+2015-06-24 11:13:17,250 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:13:17,251 : INFO : 127.0.0.1 - - [24/Jun/2015 11:13:17] "GET /ldasimilar?j=2a19938aab958785&user=e HTTP/1.1" 200 -
+2015-06-24 11:13:41,982 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:13:41,982 : INFO : 127.0.0.1 - - [24/Jun/2015 11:13:41] "OPTIONS /bowsimilar?j=2a19938aab958785&user=e HTTP/1.1" 200 -
+2015-06-24 11:13:42,223 : INFO : Request from Origin:http://localhost:3000, setting Access-Control-Allow-Origin:http://localhost:3000
+2015-06-24 11:13:42,223 : INFO : 127.0.0.1 - - [24/Jun/2015 11:13:42] "GET /bowsimilar?j=2a19938aab958785&user=e HTTP/1.1" 200 -
