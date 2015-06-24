@@ -4,3 +4,4 @@ db
 tmp
 theano-env
 ai/data
+nohup.out
