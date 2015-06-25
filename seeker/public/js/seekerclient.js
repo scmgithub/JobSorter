@@ -33,12 +33,14 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     };
 
     // persist ratings
-    $scope.rateFunction = function(index, rating) {
-      $http.post('/api/review', {
+    $scope.handleRate = function(index, rating) {
+      $http.post("http://"+location.hostname+":5000/review", {
         jobid: $scope.rows[index].jobid,
-        rating: rating
+        rating: rating,
+        useremail: $window.sessionStorage.email,
+        jobids: $scope.rows.map(function(row){return row.jobid;})
       }).success(function (data) {
-        console.log(data);
+        $scope.airatings = data.airatings;
       }).error(function (data) {
         console.log(data);
       });
@@ -54,6 +56,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
           $scope.ratings = data.results.map(function(row) {return row.rating;});
           // $scope.similarities = data.results.map(function(row) {return row.similarity;});
           $scope.rows = data.results.map(function(row) {return row.job;});
+          console.log(data.results.map(function(row) {return Object.keys(row.job);}));
         })
         .error(function(err) {
           alert(err);
@@ -169,70 +172,34 @@ angular.module('seeker',['ngRoute','ngSanitize'])
       else return null;
     }
   })
-  .directive('morestars',
+
+  .directive('myStars',
     function() {
       return {
-        restrict : 'A',
-        template : '<div class="newstars" style="width:{{ghostval ? 18*ghostval : 18*rating}}px;height:18px;background: blue;position:absolute;top:0;left:0;z-index:2;pointer-events: none;"></div><div class="emptystars" style="width:{{18*5}}px;height:18px;background: yellow;position:absolute;top:0;left:0;z-index:1" ng-click="toggle($event)" ng-mousemove="ghost($event)" ng-mouseleave="noghost()"></div>',
+        restrict : 'E',
+        template : '<div class="morestars">'+
+          '<div class="{{userRating > 0 || hoverRating ? \'userstars\' : \'aistars\'}}" style="width:{{18*(hoverRating ? hoverRating : (userRating > 0 ? userRating : aiRating))}}px;"></div>'+
+          '<div class="emptystars" ng-click="rate($event)" ng-mousemove="hover($event)" ng-mouseleave="nohover()"></div>'+
+          '</div>',
         scope : {
-          rating : '=',
-          ghostval : '=',
-          onSelected : '&'
+          userRating : '=',
+          hoverRating : '=',
+          aiRating : '=',
+          onRate : '&'
         },
         link : function(scope, elem, attrs) {
-          scope.toggle = function(event) {
-            scope.rating = 1+Math.floor(event.offsetX/18.1);
-            // console.log('toggle',event);
+          scope.rate = function(event) {
+            scope.userRating = 1+Math.floor(event.offsetX/18.1);
+            scope.onRate({userRating: scope.userRating});
           };
-          scope.ghost = function(event) {
-            scope.ghostval = 1+Math.floor(event.offsetX/18.1);
+          scope.hover = function(event) {
+            scope.hoverRating = 1+Math.floor(event.offsetX/18.1);
           };
-          scope.noghost = function() {
-            scope.ghostval = 0;
+          scope.nohover = function() {
+            scope.hoverRating = 0;
           };
         }
       }
-    }
-  )
-
-  .directive('starRating',
-    function() {
-      return {
-        restrict : 'A',
-        template : '<ul class="rating">'
-           + ' <li ng-repeat="star in stars" ng-class="star" ng-click="toggle($index)">'
-           + '  <i class="fa fa-star"></i>'
-           + ' </li>'
-           + '</ul>',
-        scope : {
-          ratingValue : '=',
-          max : '=',
-          onRatingSelected : '&'
-        },
-        link : function(scope, elem, attrs) {
-          var updateStars = function() {
-            scope.stars = [];
-            for ( var i = 0; i < scope.max; i++) {
-              scope.stars.push({
-                filled : i < scope.ratingValue
-              });
-            }
-          };
-       
-          scope.toggle = function(index) {
-            scope.ratingValue = index + 1;
-            scope.onRatingSelected({
-             rating : index + 1
-            });
-          };
-          
-          scope.$watch('ratingValue', function(oldVal, newVal) {
-            if (newVal) {
-              updateStars();
-            }
-          });
-        }
-      };
     }
   )
 

@@ -100,27 +100,6 @@ def joblistFromSimilarities(simscores, numdocs, useremail):
   return results
 
 
-  # # grab database entries for the row numbers
-  # jobslistwithdata = {row['jobid']: row for row in db.joblistings.find({'jobid': {'$in': [a[0] for a in jobidpairs]}})}
-  # # remove _id column from results because it messes up the json
-  # for key in jobslistwithdata:
-  #   del jobslistwithdata[key]['_id']
-  # # look up reviews based on passed in email
-  # jobreviewdict = {}
-  # if (useremail != None):
-  #   jobreviewlist = list(db.reviews.find({'useremail': useremail, 'jobid': {'$in': [a[0] for a in jobidpairs]}}))
-  #   jobreviewdict = {a['jobid']: a['rating'] for a in jobreviewlist}
-  #   airatings = ratejobs([a[0] for a in jobidpairs], useremail)
-  # else:
-  #   airatings = {pair[0]:-1 for pair in jobidpairs}
-  # # combine similarity scores, reviews, aireviews, and jobdetails in finallist
-  # finallist = []
-  # for pair in jobidpairs:
-  #   if (pair[0] not in jobreviewdict):
-  #     jobreviewdict[pair[0]] = -1
-  #   finallist.append({'job': jobslistwithdata[pair[0]], 'similarity': str(pair[1]), 'rating': jobreviewdict[pair[0]], 'airating': airatings[pair[0]]})
-  # return finallist
-
 # returns dictionary of jobids->airatings
 def ratejobs(jobs,useremail):
   global dict,corpus,tfidf,lsimodel,jobid2id,id2jobid
@@ -302,8 +281,28 @@ def mongosearch():
   # print useremail
   results = prepareJobsFromJobids(jobids, useremail)
   return json.jsonify({'results': results})
-  # return 'hi'
-  #cursor = db.collection('joblistings').find( { $text: { $search: query } }, { score: { $meta: "textScore" } }).sort( { score: { $meta: "textScore" } } ).limit(10);
+
+
+# post a review and returns an updated list of airatings for the current page
+@app.route("/review", methods=['POST'])
+@cross_origin()
+def review():
+  global jobid2id,id2jobid
+  reqjson = request.get_json()
+  jobid = reqjson.get('jobid')
+  useremail = reqjson.get('useremail')
+  rating = reqjson.get('rating')
+  jobids = reqjson.get('jobids')
+  db.reviews.replace_one({'jobid': jobid, 'useremail': useremail},{'jobid':jobid,'useremail':useremail,'rating':rating},upsert=True)
+  airatings = ratejobs(jobids, useremail)
+  results = []
+  for jobid in jobids:
+    if jobid in airatings:
+      results.append(airatings[jobid])
+    else:
+      results.append(-1)
+  return json.jsonify({'airatings': results})
+
 
 @app.route("/main")
 def main():

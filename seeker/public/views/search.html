@@ -5,7 +5,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title">
           {{modaltitle}}
-          <span class="star-rating" star-rating rating-value="ratings[modalindex]" data-max="5" on-rating-selected="rateFunction(modalindex, rating)"></span>
+          <my-stars ai-rating="airatings[modalindex]" user-rating="ratings[modalindex]" on-rate="handleRate(modalindex, userRating)"></my-stars>
         </h4>
       </div>
       <div class="modal-body">
@@ -24,9 +24,9 @@
 </div>
 <ul style='clear: both'>
   <li ng-repeat="row in rows">
-    <div morestars style="position:relative;height:18px;">hey</div>
     <h4>
-    {{airatings[$index] | number:2}} {{similarities[$index] | number:2}} <span class="star-rating" star-rating rating-value="ratings[$index]" data-max="5" on-rating-selected="rateFunction($index, rating)"></span>
+    {{similarities[$index] | number:2}}
+    <my-stars ai-rating="airatings[$index]" user-rating="ratings[$index]" on-rate="handleRate($index, userRating)"></my-stars>
     {{row.title}}<button class="btn btn-default" style="margin-left: 10px;" ng-click="findSimilarLDA($index)">Find similar (LDA)</button><button class="btn btn-default" style="margin-left: 10px;" ng-click="findSimilarBOW($index)">Find similar (BoW)</button>
     </h4>
     <p ng-click="showDetail($index)">{{row.snippet}}</p>

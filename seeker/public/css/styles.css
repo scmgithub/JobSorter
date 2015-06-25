@@ -24,3 +24,33 @@ ul.rating {
 ul {
   list-style-type: none;
 }
+
+.morestars {
+  position: relative;
+  display: inline-block;
+  height: 18px;
+  width: 90px;
+}
+.aistars {
+  background-image: url(../img/star-grey.png);
+}
+.userstars {
+  background-image: url(../img/star-blue.png);
+}
+.userstars,.aistars {
+  z-index: 2;
+  pointer-events: none;
+}
+.emptystars {
+  background-image: url(../img/star-empty.png);
+  z-index: 1;
+  width: 90px; /* 18*5 = 90 */
+}
+.aistars,.userstars,.emptystars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 18px;
+  background-size: 18px 18px;
+  background-repeat: repeat-x;
+}
