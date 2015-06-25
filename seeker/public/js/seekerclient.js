@@ -21,7 +21,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
   .controller('search', function($scope, $http, $location, $window) {
 
     // make sure modal gets inited properly
-    $scope.mapurl='';
+    $scope.mapurl=null;
     $scope.modalindex = 0;
     $scope.ratings = [-1];
 
@@ -56,7 +56,6 @@ angular.module('seeker',['ngRoute','ngSanitize'])
           $scope.ratings = data.results.map(function(row) {return row.rating;});
           // $scope.similarities = data.results.map(function(row) {return row.similarity;});
           $scope.rows = data.results.map(function(row) {return row.job;});
-          console.log(data.results.map(function(row) {return Object.keys(row.job);}));
         })
         .error(function(err) {
           alert(err);

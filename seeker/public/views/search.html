@@ -9,8 +9,8 @@
         </h4>
       </div>
       <div class="modal-body">
-        <div ng-if="mapurl" class="modal-map" style="float: right; padding-top: 10px; padding-left: 10px; padding-bottom: 10px; padding-right: 10px;">
-          <img src="{{mapurl}}">
+        <div class="modal-map" style="float: right; padding-top: 10px; padding-left: 10px; padding-bottom: 10px; padding-right: 10px;">
+          <img ng-src="{{mapurl}}">
           <div><small>Map may not indicate exact job location.</small></div>
         </div>
         <p ng-bind-html="modalbody | newlines_as_br"></p>
