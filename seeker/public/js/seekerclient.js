@@ -188,11 +188,21 @@ angular.module('seeker',['ngRoute','ngSanitize'])
         },
         link : function(scope, elem, attrs) {
           scope.rate = function(event) {
-            scope.userRating = 1+Math.floor(event.offsetX/18.1);
+            if (typeof event.offsetX === "undefined") {
+              // workaround because firefox doesn't have offsetX
+              scope.userRating = 1+Math.floor((event.pageX - elem.context.offsetLeft)/18.1);
+            } else {
+              scope.userRating = 1+Math.floor(event.offsetX/18.1);
+            }
             scope.onRate({userRating: scope.userRating});
           };
           scope.hover = function(event) {
-            scope.hoverRating = 1+Math.floor(event.offsetX/18.1);
+            if (typeof event.offsetX === "undefined") {
+              // workaround because firefox doesn't have offsetX
+              scope.hoverRating = 1+Math.floor((event.pageX - elem.context.offsetLeft)/18.1);
+            } else {
+              scope.hoverRating = 1+Math.floor(event.offsetX/18.1);
+            }
           };
           scope.nohover = function() {
             scope.hoverRating = 0;

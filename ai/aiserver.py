@@ -107,14 +107,17 @@ def ratejobs(jobs,useremail):
   labels = []
   reviewrowids = []
   # check for 0 reviews
-  if len(reviews) == 0:
-    return {jobid:-1 for jobid in jobs}
-  else:
-    for review in reviews:
-      if review['jobid'] in jobid2id:
+  for review in reviews:
+    if review['jobid'] in jobid2id:
+      try:
         labels.append(float(review['rating']))
         reviewrowids.append(jobid2id[review['jobid']])
+      except:
+        print(review)
 
+  if len(reviewrowids) == 0:
+    return {jobid:-1 for jobid in jobs}
+  else:
     samples = [lsimodel[tfidf[corpus[rowid]]] for rowid in reviewrowids]
     # can be linear, rbf with gamma, or poly with degree
     svmmodel = svm.SVR(kernel='rbf', C=1e3, gamma=0.01)
@@ -185,7 +188,7 @@ def lsimodelcreate():
 @app.route("/ldamodel", methods=['POST'])
 def ldamodelcreate():
   global dict,corpus,ldamodel
-  ldamodel = models.LdaMulticore(corpus, num_topics=300, id2word=dict, workers=4, passes=30, iterations=100)
+  ldamodel = models.LdaMulticore(corpus, num_topics=300, id2word=dict, workers=12, passes=30, iterations=100)
   ldamodel.save('data/ldamodel')
   return 'lda model created'
 
@@ -293,7 +296,12 @@ def review():
   useremail = reqjson.get('useremail')
   rating = reqjson.get('rating')
   jobids = reqjson.get('jobids')
-  db.reviews.replace_one({'jobid': jobid, 'useremail': useremail},{'jobid':jobid,'useremail':useremail,'rating':rating},upsert=True)
+  try:
+    tesfloat = float(rating) # make sure we get passed a real rating before we add it to the db
+    db.reviews.replace_one({'jobid': jobid, 'useremail': useremail},{'jobid':jobid,'useremail':useremail,'rating':rating},upsert=True)
+  except:
+    print('bad rating passed');
+    print(reqjson);
   airatings = ratejobs(jobids, useremail)
   results = []
   for jobid in jobids:
