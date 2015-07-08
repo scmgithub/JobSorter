@@ -9,7 +9,7 @@
         </h4>
       </div>
       <div class="modal-body">
-        <div class="modal-map" style="float: right; padding-top: 10px; padding-left: 10px; padding-bottom: 10px; padding-right: 10px;">
+        <div class="modal-map">
           <img ng-src="{{mapurl}}">
           <div><small>Map may not indicate exact job location.</small></div>
         </div>
@@ -23,12 +23,12 @@
   <a href='http://www.indeed.com'>Jobs</a> by <a href='http://www.indeed.com'><img src='http://www.indeed.com/p/jobsearch.gif'></a> 
 </div>
 <ul style='clear: both'>
-  <li ng-repeat="row in rows">
+  <li ng-repeat="row in rows" ng-click="showDetail($index)" class="searchresult">
     <h4>
     {{similarities[$index] | number:2}}
     <my-stars ai-rating="airatings[$index]" user-rating="ratings[$index]" on-rate="handleRate($index, userRating)"></my-stars>
     {{row.title}}<button class="btn btn-default" style="margin-left: 10px;" ng-click="findSimilarLDA($index)">Find similar (LDA)</button><button class="btn btn-default" style="margin-left: 10px;" ng-click="findSimilarBOW($index)">Find similar (BoW)</button>
     </h4>
-    <p ng-click="showDetail($index)">{{row.snippet}}</p>
+    <p>{{row.snippet}}</p>
   </li>
 </ul>

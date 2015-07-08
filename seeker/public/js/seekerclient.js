@@ -32,7 +32,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
       $location.path('/app/search').search({bowsimilar: $scope.rows[index].jobid});
     };
 
-    // persist ratings
+    // persist ratings when user clicks on the stars
     $scope.handleRate = function(index, rating) {
       $http.post("http://"+location.hostname+":5000/review", {
         jobid: $scope.rows[index].jobid,
@@ -172,6 +172,7 @@ angular.module('seeker',['ngRoute','ngSanitize'])
     }
   })
 
+  // custom directive for rendering star ratings
   .directive('myStars',
     function() {
       return {
@@ -190,16 +191,31 @@ angular.module('seeker',['ngRoute','ngSanitize'])
           scope.rate = function(event) {
             if (typeof event.offsetX === "undefined") {
               // workaround because firefox doesn't have offsetX
-              scope.userRating = 1+Math.floor((event.pageX - elem.context.offsetLeft)/18.1);
+              // we need to walk up the dom tree and add all the parent offsetLefts together to get the page offset
+              var offset = elem.context.offsetLeft;
+              var parent = elem.context.offsetParent;
+              while (parent) {
+                offset += parent.offsetLeft;
+                parent = parent.offsetParent;
+              }
+              scope.userRating = 1+Math.floor((event.pageX - offset)/18.1);
             } else {
               scope.userRating = 1+Math.floor(event.offsetX/18.1);
             }
             scope.onRate({userRating: scope.userRating});
+            event.stopPropagation();
           };
           scope.hover = function(event) {
             if (typeof event.offsetX === "undefined") {
               // workaround because firefox doesn't have offsetX
-              scope.hoverRating = 1+Math.floor((event.pageX - elem.context.offsetLeft)/18.1);
+              // we need to walk up the dom tree and add all the parent offsetLefts together to get the page offset
+              var offset = elem.context.offsetLeft;
+              var parent = elem.context.offsetParent;
+              while (parent) {
+                offset += parent.offsetLeft;
+                parent = parent.offsetParent;
+              }
+              scope.hoverRating = 1+Math.floor((event.pageX - offset)/18.1);
             } else {
               scope.hoverRating = 1+Math.floor(event.offsetX/18.1);
             }
